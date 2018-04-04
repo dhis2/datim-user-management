@@ -14,22 +14,8 @@ function dataEntryService() {
     };
 
     function hasDataEntryForStream(streamName) {
-        var activeDataEntryKeys = [];
-
-        Object.keys(dataEntryRoles)
-            .forEach(function (dataEntryKey) {
-                if (dataEntryRoles[dataEntryKey] === true) {
-                    activeDataEntryKeys.push(dataEntryKey);
-                }
-            });
-
-        // FIXME: Hack for DOD Data Entry
-        if (streamName === 'SI' && dataEntryRoles['SI DOD']) {
-            return true;
-        }
-        // FIXME: End Hack for DOD Data Entry
-
-        return activeDataEntryKeys.indexOf(streamName) >= 0;
+        var key = this.userActions.getDataStreamKey(streamName) || streamName;
+        return (dataEntryRoles[key] == true);
     }
 
     function reset() {
@@ -57,19 +43,13 @@ function dataEntryService() {
             }
         });
 
-        Object.keys(this.userActions.dataEntryRestrictions[userType])
-            .forEach(function (streamName) {
-                if (userType !== 'Partner') {
-                    dataEntryRoles[streamName] = true;
-                } else {
-                    //Partner specific rules regarding DOD
-                    if ((userEntity && streamName === 'SI DOD' && userEntity.dodEntry) ||
-                        (userEntity && streamName === 'SI' && userEntity.normalEntry) ||
-                        (streamName !== 'SI DOD' && streamName !== 'SI')
-                    ) {
-                        dataEntryRoles[streamName] = true;
-                    }
+        Object.keys(this.userActions.dataEntryRestrictions[userType] || {})
+            .forEach(function (name) {
+                // TODO: Verify - original logic also discriminated against userType
+                var isApplicable = this.userActions.isDataEntryApplicableToUser(name, userEntity);
+                if (isApplicable) {
+                    dataEntryRoles[name] = true;
                 }
-            });
+            }.bind(this));
     }
 }

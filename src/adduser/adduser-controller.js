@@ -1,7 +1,7 @@
 angular.module('PEPFAR.usermanagement').controller('addUserController', addUserController);
 
 function addUserController($scope, userTypes, dataGroups, currentUser, dimensionConstraint, //jshint maxstatements: 60
-                           userActions, userService, $state, notify, interAgencyService,
+                           userActions, userService, $state, notify, schemaService,
                            userFormService, userUtils, dataEntryService, errorHandler) {
 
     errorHandler.debug(currentUser.isGlobalUser && currentUser.isGlobalUser() ? 'Is a global user' : 'Is not a global user');
@@ -27,8 +27,8 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
     //Methods
     vm.addUser = addUser;
     vm.validateDataGroups = validateDataGroups;
+    vm.hasUserManagerRole = hasUserManagerRole;
     vm.getUserManagerRoles = getUserManagerRoles;
-    vm.getUserManagerDataEntryRoles = getUserManagerDataEntryRoles;
     vm.getUserManagerDataAccessGroups = getUserManagerDataAccessGroups;
     vm.checkAllBoxesForUserManager = checkAllBoxesForUserManager;
     vm.getErrorString = getErrorString;
@@ -56,8 +56,13 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
             vm.actions = userActions.filterActionsForCurrentUser(userActions.getActionsForUserType(newVal.name));
 
             if (newVal.name === 'Inter-Agency') {
-                interAgencyService.getUserGroups(getCurrentOrgUnit()).then(function (interAgencyUserGroups) {
+                schemaService.store.get('Interagency Groups', getCurrentOrgUnit()).then(function (interAgencyUserGroups) {
                     $scope.user.userEntity = interAgencyUserGroups;
+                });
+            }
+            else if (newVal.name === 'MOH') {
+                schemaService.store.get('MOH Groups', getCurrentOrgUnit()).then(function (mohUserGroups) {
+                    $scope.user.userEntity = mohUserGroups;
                 });
             }
 
@@ -84,8 +89,20 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
             return;
         }
 
+        // Filter the user type list for regular MOH users
+        var currentUserType = userTypes.fromUser(currentUser);
+        if (!currentUser.hasAllAuthority() && currentUserType === 'MOH') {
+            for (var i = $scope.userTypes.length - 1; i >= 0; i--) {
+                var userType = $scope.userTypes[i];
+                if (userType.name !== 'MOH') {
+                    $scope.userTypes.splice(i, 1);
+                }
+            }
+        }
+
         $scope.user.dataGroups = createUserGroupsObjectFromDataGroups(vm.dataGroups);
 
+        dataEntryService.userActions = userActions;
         vm.actions = userActions.getActionsForUserType();
     }
 
@@ -124,13 +141,20 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
         addUserManagerUserRoles();
         addAllAvailableDataStreams();
 
-        if (verifyUserInviteObject() &&
-            addUserGroupsForMechanismsAndUsers() &&
-            addUserGroupForUserAdmin()) {
+        var showError = function () { notify.error('Unable to invite user manager'); }
 
-            sendInvite();
-        } else {
-            notify.error('Unable to invite user manager');
+        if (verifyUserInviteObject() && addUserGroupsForMechanismsAndUsers()) {
+            addUserGroupForUserAdmin(function (success) {
+                if (success) {
+                    sendInvite();
+                }
+                else {
+                    showError();
+                }
+            });
+        }
+        else {
+            showError();
         }
     }
 
@@ -180,6 +204,10 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
         );
     }
 
+    function hasUserManagerRole() {
+        return userActions.hasManageUsersAction(getUserType());
+    }
+
     function checkAllBoxesForUserManager() {
         if (vm.isUserManager) {
             userUtils.storeDataStreams($scope.user.dataGroups);
@@ -212,32 +240,64 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
 
     function addUserGroupsForMechanismsAndUsers() {
         //Add the all mechanisms group from the user entity
-        if (userEntityHasValidUserGroups()) {
-            vm.userInviteObject.addEntityUserGroup($scope.user.userEntity.mechUserGroup);
-            vm.userInviteObject.addEntityUserGroup($scope.user.userEntity.userUserGroup);
+        var entity = $scope.user.userEntity;
 
-            return true;
+        var hasMechUserGroup = entity && entity.mechUserGroup && entity.mechUserGroup.id;
+        var hasUserUserGroup = entity && entity.userUserGroup && entity.userUserGroup.id;
+
+        if (hasMechUserGroup) {
+            vm.userInviteObject.addEntityUserGroup(entity.mechUserGroup);
+        }
+        if (hasUserUserGroup) {
+            vm.userInviteObject.addEntityUserGroup(entity.userUserGroup);
         }
 
-        notify.error('User groups for mechanism and users not found on selected entity');
-        return false;
-    }
-
-    function addUserGroupForUserAdmin() {
-        if ($scope.user.userEntity.userAdminUserGroup) {
-            vm.userInviteObject.addEntityUserGroup($scope.user.userEntity.userAdminUserGroup);
-            return true;
+        if (!hasMechUserGroup && !hasUserUserGroup) {
+            notify.error('User groups for mechanism and users not found on selected entity');
+            return false;
         }
-        notify.error('User admin group can not be found');
-        return false;
+        
+        return true;
     }
 
-    function userEntityHasValidUserGroups() {
-        return $scope.user.userEntity &&
-            $scope.user.userEntity.mechUserGroup &&
-            $scope.user.userEntity.userUserGroup &&
-            $scope.user.userEntity.mechUserGroup.id &&
-            $scope.user.userEntity.userUserGroup.id;
+    function addUserGroupForUserAdmin(callback) {
+        if (!$scope.user.userEntity.userAdminUserGroup) {
+            notify.error('User admin group can not be found');
+            return callback(false);
+        }
+
+        vm.userInviteObject.addEntityUserGroup($scope.user.userEntity.userAdminUserGroup);
+
+        var userType = getUserType();
+        var applicableUserTypes = schemaService.store.get('Data Groups Definition', true)
+            .getUserTypes('MOH') || [];
+        var shouldToggle = applicableUserTypes.indexOf(userType) !== -1;
+
+        if (applicableUserTypes) {
+            schemaService.store.get('MOH Groups', getCurrentOrgUnit()).then(function (mohUserGroups) {
+                var mohGroups = Object.keys(mohUserGroups).map(function (key) { return mohUserGroups[key]; });
+                mohGroups.forEach(function (mohGroup) {
+                    if (mohGroup && mohGroup.id) {
+                        var hasGroup = vm.userInviteObject.userGroups.filter(function (g) {
+                            return g.id === mohGroup.id;
+                        }).length > 0;
+
+                        if (!hasGroup) {
+                            vm.userInviteObject.addEntityUserGroup(mohGroup);
+                        }
+                    }
+                });
+
+                callback(true);
+            }).catch(function (err) {
+                notify.error('User admin cannot get MOH group data');
+                console.log('err => ', err);
+                callback(false);
+            });
+        }
+        else {
+            callback(true);
+        }
     }
 
     function getUserManagerRoles() {
@@ -308,10 +368,14 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
             return 'Please check if you selected a user type';
         }
         if (!$scope.user.userEntity) {
-            if (getUserType() === 'Partner') {
-                return 'Please check if you selected a ' + getUserType();
+            var userType = getUserType();
+            if (userType === 'MOH') { }
+            else if (userType === 'Partner') {
+                return 'Please check if you selected a ' + userType;
             }
-            return 'Please check if you selected an ' + getUserType();
+            else {
+                return 'Please check if you selected an ' + userType;
+            }
         }
         if (!$scope.user.email) {
             return 'Please check if you entered an e-mail address';

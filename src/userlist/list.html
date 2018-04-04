@@ -98,7 +98,17 @@
                }"></h3>
         </div>
         <div class="col-sm-6 header-buttons">
-            <div class="button-group">
+            <div class="button-group" ng-if="userList.isUserAdministrator">
+                <a ng-show="userList.users.length > 0"
+                   ng-click="userList.downloadAsCSV()"
+                   ng-class="{ disabled: userList.isDownloadingCSV }"
+                   class="btn btn-default pull-right">
+                    <i class="fa fa-save"></i>
+                    <span translate class="ng-scope" ng-if="!userList.isDownloadingCSV">Download as CSV</span>
+                    <span translate class="ng-scope" ng-if="userList.isDownloadingCSV">Downloading...</span>
+                </a>
+            </div>
+            <div class="button-group" ng-if="!userList.isUserAdministrator">
                 <a ng-show="userList.users.length > 0"
                    ng-href='{{userList.getCSVUrl()}}'
                    class="btn btn-default pull-right">
@@ -130,7 +140,7 @@
                                     <span ng-hide="userList.isProcessing(user.id)">Active</span>
                                     <span ng-show="userList.isProcessing(user.id)"><i class="fa fa-circle-o-notch fa-spin"></i></span>
                                 </span>
-                                <div class="button-group" ng-show="userList.canEditUser(user)">
+                                <div class="button-group" ng-if="!userList.getEditDisabledReasons(user).length">
                                     <button class="btn btn-default btn-edit-user" ng-click="userList.editUser(user)"><i class="fa fa-pencil-square-o"></i> Edit</button>
                                     <button class="btn btn-danger" ng-disabled="userList.isProcessing(user.id)" ng-hide="user.userCredentials.disabled" ng-click="userList.deactivateUser(user); $event.stopPropagation();">
                                         <i class="fa fa-times"></i>
@@ -138,6 +148,9 @@
                                     <button class="btn btn-success" ng-disabled="userList.isProcessing(user.id)" ng-show="user.userCredentials.disabled" ng-click="userList.activateUser(user); $event.stopPropagation();">
                                         <i class="fa fa-check"></i>
                                     </button>
+                                </div>
+                                <div class="button-group" ng-if="userList.getEditDisabledReasons(user).length">
+                                    <button class="btn btn-warning" ng-click="userList.showEditDisabledReason(user); $event.stopPropagation();"><i class="fa fa-exclamation-triangle"></i> Unable to edit</button>
                                 </div>
                             </div>
                         </div>

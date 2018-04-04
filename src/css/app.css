@@ -12448,6 +12448,133 @@ button.close {
 }
 
 /* Message colors */
+/* line 2, ../user-groups/_usergroups.sass */
+.manage-user-groups .half-section {
+  display: inline-block;
+  width: 48%;
+  vertical-align: top;
+  padding: 2px;
+}
+/* line 8, ../user-groups/_usergroups.sass */
+.manage-user-groups h3 {
+  padding-bottom: 15px;
+}
+/* line 11, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list {
+  list-style-type: none;
+  cursor: pointer;
+}
+/* line 15, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list > li {
+  padding: 5px;
+  border: 1px solid #ccc;
+}
+/* line 19, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list > li:first-child {
+  border-radius: 5px 5px 0px 0px;
+}
+/* line 21, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list > li:last-child {
+  border-radius: 0px 0px 5px 5px;
+}
+/* line 23, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list > li:only-child {
+  border-radius: 5px;
+}
+/* line 26, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list > li:nth-child(odd) {
+  background-color: #eee;
+}
+/* line 29, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list > li.selected {
+  background-color: #ffc;
+}
+/* line 32, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list > li:hover {
+  background-color: #276696;
+  color: #FFF;
+}
+/* line 37, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list .result > * {
+  display: block;
+  padding: 2px;
+}
+/* line 40, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list .result .group-name {
+  font-size: 1.2em;
+}
+/* line 42, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list .result .user-count {
+  padding-left: 4px;
+}
+/* line 45, ../user-groups/_usergroups.sass */
+.manage-user-groups ul.user-group-list ul.user-group-user-list {
+  list-style-type: none;
+  padding-left: 10px;
+}
+/* line 50, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .tabs-container {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+/* line 55, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .tabs-container .not-allowed a {
+  cursor: not-allowed !important;
+}
+/* line 57, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .tabs-container a {
+  cursor: pointer;
+}
+/* line 60, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .name-container {
+  display: table;
+  padding: 4px;
+  padding-top: 0px;
+  width: 100%;
+}
+/* line 66, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .name-container > * {
+  display: table-cell;
+}
+/* line 69, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .name-container label {
+  width: 50px;
+}
+/* line 71, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .name-container span {
+  width: 60px;
+  padding-left: 4px;
+}
+/* line 75, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .users-container {
+  padding-top: 4px;
+  width: 100%;
+}
+/* line 79, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .users-container label {
+  padding-left: 4px;
+  width: 55px;
+  float: left;
+}
+/* line 84, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .users-container .user-container {
+  padding-bottom: 4px;
+}
+/* line 87, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .users-container .user-container > * {
+  display: inline-block;
+}
+/* line 90, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .users-container .user-container i.readonly {
+  visibility: hidden;
+}
+/* line 93, ../user-groups/_usergroups.sass */
+.manage-user-groups .new-group .action-container {
+  clear: both;
+  text-align: center;
+  padding-top: 8px;
+}
+
 /* line 2, ../userlist/_userlist.sass */
 .search-form div.row {
   margin-bottom: 2px;
@@ -12830,6 +12957,19 @@ button.close {
     height: 0;
   }
 }
+/* line 297, ../userlist/_userlist.sass */
+.user-list-edituser-warning {
+  width: 400px !important;
+}
+/* line 300, ../userlist/_userlist.sass */
+.user-list-edituser-warning ul {
+  padding-left: 20px !important;
+}
+/* line 303, ../userlist/_userlist.sass */
+.user-list-edituser-warning ul li {
+  color: white !important;
+}
+
 /* line 1, ../edituser/_edit.sass */
 .user-edit-header {
   position: relative;
@@ -12878,51 +13018,51 @@ button.close {
   display: none;
 }
 
-/* line 10, ../app/app.sass */
+/* line 11, ../app/app.sass */
 .icon-rotate, .button-group a:hover i, .button-group button:hover i {
   transform-style: preserve-3d;
   transition: transform 0.5s;
   transform: rotateZ(360deg) rotateY(360deg);
 }
 
-/* line 15, ../app/app.sass */
+/* line 16, ../app/app.sass */
 * {
   box-sizing: border-box;
 }
 
-/* line 18, ../app/app.sass */
+/* line 19, ../app/app.sass */
 h1, h2 {
   font-weight: 100;
   margin-bottom: 30px;
   margin-top: 0;
 }
 
-/* line 23, ../app/app.sass */
+/* line 24, ../app/app.sass */
 h1 {
   color: #3E606F;
   font-size: 2em;
 }
-/* line 27, ../app/app.sass */
+/* line 28, ../app/app.sass */
 h1.main-title {
   margin-bottom: 0;
 }
 
-/* line 30, ../app/app.sass */
+/* line 31, ../app/app.sass */
 h2.sub-title {
   font-size: 1.2em;
   color: #AAA;
 }
 
-/* line 34, ../app/app.sass */
+/* line 35, ../app/app.sass */
 .button-group {
   float: right;
 }
-/* line 37, ../app/app.sass */
+/* line 38, ../app/app.sass */
 .button-group a, .button-group button {
   min-width: 40px;
 }
 
-/* line 43, ../app/app.sass */
+/* line 44, ../app/app.sass */
 .app-content-wrap {
   margin: 0 auto;
   margin-top: 75px;
@@ -12930,34 +13070,34 @@ h2.sub-title {
   width: 60%;
 }
 
-/* line 50, ../app/app.sass */
+/* line 51, ../app/app.sass */
 form .form-control.ng-valid,
 form .ui-select-bootstrap.ng-valid button {
   border: 1px solid green;
 }
-/* line 54, ../app/app.sass */
+/* line 55, ../app/app.sass */
 form .form-control-wrap {
   position: relative;
   display: block;
 }
-/* line 58, ../app/app.sass */
+/* line 59, ../app/app.sass */
 form .form-controls-wrap {
   margin-bottom: 15px;
 }
-/* line 61, ../app/app.sass */
+/* line 62, ../app/app.sass */
 form .form-controls-wrap.select-user-type > div {
   margin-bottom: 15px;
 }
-/* line 64, ../app/app.sass */
+/* line 65, ../app/app.sass */
 form .form-controls-wrap fieldset {
   width: 95%;
 }
-/* line 68, ../app/app.sass */
+/* line 69, ../app/app.sass */
 form .form-controls-wrap fieldset legend i.valid-icon {
   color: green;
   margin-left: 15px;
 }
-/* line 74, ../app/app.sass */
+/* line 75, ../app/app.sass */
 form .form-control-wrap.ng-valid:after,
 form .ui-select-bootstrap.ng-valid:after {
   content: "";
@@ -12971,40 +13111,40 @@ form .ui-select-bootstrap.ng-valid:after {
   right: -35px;
   font-size: 1.5em;
 }
-/* line 86, ../app/app.sass */
+/* line 87, ../app/app.sass */
 form .form-control.ng-invalid.ng-dirty,
 form .ui-select-bootstrap.ng-invalid.ng-dirty button {
   border: 1px solid red;
 }
 
-/* line 90, ../app/app.sass */
+/* line 91, ../app/app.sass */
 .error-messages div {
   color: red;
   font-size: 0.9em;
   margin-top: 5px;
 }
 
-/* line 95, ../app/app.sass */
+/* line 96, ../app/app.sass */
 .half {
   display: inline-block;
   vertical-align: top;
   width: 50%;
 }
 
-/* line 100, ../app/app.sass */
+/* line 101, ../app/app.sass */
 ul.checkbox-group, ul.user-manager-items {
   list-style: none;
   padding-left: 15px;
 }
-/* line 104, ../app/app.sass */
+/* line 105, ../app/app.sass */
 ul.checkbox-group li, ul.user-manager-items li {
   list-style: none;
 }
-/* line 107, ../app/app.sass */
+/* line 108, ../app/app.sass */
 ul.checkbox-group li, ul.user-manager-items li {
   position: relative;
 }
-/* line 110, ../app/app.sass */
+/* line 111, ../app/app.sass */
 ul.checkbox-group li.ng-enter, ul.user-manager-items li.ng-enter {
   -webkit-animation: fadeInLeft 400ms;
   animation: fadeInLeft 400ms;
@@ -13012,7 +13152,7 @@ ul.checkbox-group li.ng-enter, ul.user-manager-items li.ng-enter {
   -webkit-animation-delay: 200ms;
   -moz-animation-delay: 200ms;
 }
-/* line 117, ../app/app.sass */
+/* line 118, ../app/app.sass */
 ul.checkbox-group li.ng-leave, ul.user-manager-items li.ng-leave {
   -webkit-animation: fadeOutRight 400ms;
   animation: fadeOutRight 400ms;
@@ -13074,17 +13214,17 @@ ul.checkbox-group li.ng-leave, ul.user-manager-items li.ng-leave {
     transform: translate3d(10%, 0, 0);
   }
 }
-/* line 176, ../app/app.sass */
+/* line 177, ../app/app.sass */
 ul.user-manager-items i {
   color: #5CB85C;
   padding-right: 5px;
 }
 
-/* line 180, ../app/app.sass */
+/* line 181, ../app/app.sass */
 .user-manager-note {
   margin-bottom: 1.6em;
 }
-/* line 183, ../app/app.sass */
+/* line 184, ../app/app.sass */
 .user-manager-note i {
   color: #f0ad4e;
   float: left;
@@ -13092,13 +13232,13 @@ ul.user-manager-items i {
   padding-right: 0.5em;
   font-size: 1.5em;
 }
-/* line 190, ../app/app.sass */
+/* line 191, ../app/app.sass */
 .user-manager-note ul {
   padding-left: 40px;
   margin-top: 20px;
 }
 
-/* line 195, ../app/app.sass */
+/* line 196, ../app/app.sass */
 .loading-screen {
   position: fixed;
   width: 100%;
@@ -13109,7 +13249,7 @@ ul.user-manager-items i {
   background-color: rgba(0, 0, 0, 0.3);
   z-index: 9;
 }
-/* line 205, ../app/app.sass */
+/* line 206, ../app/app.sass */
 .loading-screen .waiting-message {
   color: #FFFFFF;
   position: relative;
@@ -13122,58 +13262,58 @@ ul.user-manager-items i {
   text-align: center;
   font-size: 1.1em;
 }
-/* line 217, ../app/app.sass */
+/* line 218, ../app/app.sass */
 .loading-screen .waiting-message span {
   padding-left: 10px;
 }
 
-/* line 220, ../app/app.sass */
+/* line 221, ../app/app.sass */
 .add-user-button {
   width: 100%;
   padding: 14px;
   font-size: 1.2em;
 }
 
-/* line 225, ../app/app.sass */
+/* line 226, ../app/app.sass */
 .action-datastream, .data-entry-streams {
   color: #999999;
 }
-/* line 228, ../app/app.sass */
+/* line 229, ../app/app.sass */
 .action-datastream:before, .data-entry-streams:before {
   content: "(";
 }
-/* line 231, ../app/app.sass */
+/* line 232, ../app/app.sass */
 .action-datastream:after, .data-entry-streams:after {
   content: ")";
 }
-/* line 234, ../app/app.sass */
+/* line 235, ../app/app.sass */
 .action-datastream span:first-child:before, .data-entry-streams span:first-child:before {
   content: "";
 }
-/* line 237, ../app/app.sass */
+/* line 238, ../app/app.sass */
 .action-datastream span:before, .data-entry-streams span:before {
   content: ", ";
 }
 
-/* line 240, ../app/app.sass */
+/* line 241, ../app/app.sass */
 legend {
   font-size: 1.5em;
   font-weight: 200;
 }
 
-/* line 245, ../app/app.sass */
+/* line 246, ../app/app.sass */
 .email .fa, .username .fa, .country .fa, .user-entity .fa, .user-type .fa {
   font-size: 1em;
   color: #276696;
 }
 
-/* line 250, ../app/app.sass */
+/* line 251, ../app/app.sass */
 .user-type-selection {
   display: block;
   padding: 14px;
   font-size: 1.2em;
 }
-/* line 255, ../app/app.sass */
+/* line 256, ../app/app.sass */
 .user-type-selection input[type="radio"] {
   visibility: hidden;
   width: 1px;
@@ -13182,25 +13322,25 @@ legend {
 /**
  * Css over rides for toastr.css
  */
-/* line 262, ../app/app.sass */
+/* line 263, ../app/app.sass */
 .toast-top-right {
   top: 55px;
 }
 
-/* line 265, ../app/app.sass */
+/* line 266, ../app/app.sass */
 #toast-container > div {
   background-position: 15px 15px;
   opacity: 0.95;
   -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=95);
   filter: alpha(opacity=95);
 }
-/* line 271, ../app/app.sass */
+/* line 272, ../app/app.sass */
 #toast-container > div li, #toast-container > div ul {
   margin-left: 0;
   padding-left: 0;
   color: #DDDDDD;
 }
-/* line 276, ../app/app.sass */
+/* line 277, ../app/app.sass */
 #toast-container > div ul {
   border-top: 1px dotted #FFFFFF;
   margin-top: 5px;
@@ -13211,7 +13351,7 @@ legend {
  * Overwrite for css stylesheets that mess with the bootstrap padding
  * TODO: Can be removed when stylesheets regarding color scheme only influence colors
  */
-/* line 289, ../app/app.sass */
+/* line 290, ../app/app.sass */
 input[type=text].form-control,
 input[type=email].form-control,
 input[type=password].form-control,

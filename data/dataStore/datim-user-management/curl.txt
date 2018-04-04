@@ -1,0 +1,2 @@
+curl --data "@./i18n.json" -v -H "Content-Type: application/json" -u admin:district http://<server>/api/dataStore/datim-user-management/i18n
+curl --data "@./stores.json" -v -H "Content-Type: application/json" -u admin:district http://<server>/api/dataStore/datim-user-management/stores

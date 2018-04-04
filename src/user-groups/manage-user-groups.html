@@ -1,0 +1,51 @@
+<div class="manage-user-groups">
+    <div class="row">
+        <div class="half-section">
+            <h3
+                ng-pluralize
+                count="userGroupsCtrl.userGroups.length"
+                when="{ '0': 'No DATIM defined user groups have been found',
+                    '1': '1 DATIM User group found',
+                    'other': '{} DATIM User groups found'}"></h3>
+            <ul class="user-group-list">
+                <li class="user-group-row" ng-class="{ selected: userGroupsCtrl.isSelected(group) }" group-id="{{group.id}}" ng-repeat="group in userGroupsCtrl.userGroups">
+                    <div class="result" ng-click="userGroupsCtrl.setSelectedGroup(group)">
+                        <span class="group-name" ng-bind="::group.name"></span>
+                        <span class="user-count" ng-pluralize count="group.users.length" when="{ '1': '1 User', 'other': '{} Users' }"></span>
+                        <ul ng-class="{ true: 'user-group-user-list' }[true]" ng-show="userGroupsCtrl.isSelected(group)">
+                            <li ng-repeat="user in group.users"><span ng-bind="::user.name"></span></li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="half-section">
+            <div class="new-group">
+                <div class="tabs-container">
+                    <ul class="nav nav-tabs">
+                        <li ng-class="{ active: userGroupsCtrl.isCreating() }" class="active"><a ng-click="userGroupsCtrl.setSelectedGroup(null)">Create New Group</a></li>
+                        <li ng-class="{ active: !userGroupsCtrl.isCreating(), 'not-allowed': userGroupsCtrl.isCreating() }"><a>Edit Group</a></li>
+                    </ul>
+                </div>
+                <div class="name-container">
+                    <label>Name</label>
+                    <input class="form-control" placeholder="Group name" name="groupName" type="text" ng-required="true" ng-model="userGroupsCtrl.getGroupContext().name" />
+                    <span> (DATIM)</span>
+                </div>
+                <div class="users-container">
+                    <label>Users</label>
+                    <div class="user-container" ng-repeat="user in userGroupsCtrl.getGroupContext().users">
+                        <i class="fa fa-close" ng-class="{ readonly: userGroupsCtrl.isCurrentUser(user) }" ng-click="userGroupsCtrl.removeGroupUser(user)"></i> <span class="new-user-name" ng-bind="::user.name"></span>
+                    </div>
+                </div>
+                <div class="action-container">
+                    <button class="btn btn-default" ng-click="userGroupsCtrl.commitGroup()" ng-disabled="userGroupsCtrl.isCommitting">
+                        <i class="fa" ng-class="{ 'fa-pencil': !userGroupsCtrl.isCommitting, 'fa-spinner': userGroupsCtrl.isCommitting }"></i> 
+                        <span ng-if="userGroupsCtrl.isCreating()">Create User Group</span>
+                        <span ng-if="!userGroupsCtrl.isCreating()">Save User Group</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

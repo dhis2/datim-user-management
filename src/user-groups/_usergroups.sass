@@ -1,0 +1,96 @@
+.manage-user-groups
+  .half-section
+    display: inline-block
+    width: 48%
+    vertical-align: top
+    padding: 2px
+
+  h3
+    padding-bottom: 15px
+
+  ul.user-group-list
+    list-style-type: none
+    cursor: pointer
+
+    > li
+      padding: 5px
+      border: 1px solid #ccc
+
+      &:first-child
+        border-radius: 5px 5px 0px 0px
+      &:last-child
+        border-radius: 0px 0px 5px 5px
+      &:only-child
+        border-radius: 5px
+
+      &:nth-child(odd)
+        background-color: #eee
+
+      &.selected
+        background-color: #ffc
+
+      &:hover
+        background-color: #276696
+        color: #FFF
+
+    .result
+      > *
+        display: block
+        padding: 2px
+      .group-name
+        font-size: 1.2em
+      .user-count
+        padding-left: 4px
+
+    ul.user-group-user-list
+      list-style-type: none
+      padding-left: 10px
+
+  .new-group
+    .tabs-container
+      margin-top: 15px
+      margin-bottom: 15px
+
+      .not-allowed
+        a
+          cursor: not-allowed !important
+      a
+        cursor: pointer
+
+    .name-container
+      display: table
+      padding: 4px
+      padding-top: 0px
+      width: 100%
+
+      > *
+        display: table-cell
+
+      label
+        width: 50px
+      span
+        width: 60px
+        padding-left: 4px
+
+    .users-container
+      padding-top: 4px
+      width: 100%
+
+      label
+        padding-left: 4px
+        width: 55px
+        float: left
+
+      .user-container
+        padding-bottom: 4px
+
+        > *
+          display: inline-block
+
+        i.readonly
+          visibility: hidden
+
+    .action-container
+      clear: both
+      text-align: center
+      padding-top: 8px

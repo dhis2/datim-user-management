@@ -1,0 +1,415 @@
+[{
+    "name": "Current User Authorizations",
+    "config": {
+        "endpoint": "me/authorization",
+        "filter": "[].concat(this)"
+    }
+}, {
+    "name": "Current User",
+    "requires": [ "Current User Authorizations" ],
+    "config": {
+        "endpoint": "me",
+        "get": {
+            "fields": ":all,userCredentials[:owner,!userGroupAccesses,userRoles[id,name,displayName]],!userGroupAccesses,userGroups[id,name,displayName],organisationUnits[id,name]"
+        }
+    },
+    "extend": {
+        "authorities": {
+            "get": "requires['Current User Authorizations']"
+        },
+        "hasUserRole": {
+            "args": [ "name" ],
+            "fn": "((this.userCredentials || {}).userRoles || []).some(function (userRole) { return userRole.name === name; })"
+        },
+        "hasAllAuthority": {
+            "fn": "(this.authorities || []).indexOf('ALL') >= 0"
+        },
+        "isUserAdministrator": {
+            "fn": "this.hasUserRole('User Administrator')"
+        },
+        "isGlobalUser": {
+            "fn": "this.organisationUnits && this.organisationUnits.length && this.organisationUnits[0].name === 'Global'"
+        }
+    }
+}, {
+    "name": "DATIM User Groups",
+    "config": {
+        "datamodel": "userGroups",
+        "get": {
+            "fields": "id,name,users[id,name]",
+            "filter": "name:like: (DATIM)"
+        }
+    },
+    "filter": "_.sortBy(this.filter(function (userGroup) { return userGroup.name.match(/\\(DATIM\\)$/); }), 'name')"
+}, {
+    "name": "User Roles",
+    "config": {
+        "datamodel": "userRoles"
+    },
+    "extend": {
+        "getByName": {
+            "args": [ "name" ],
+            "fn": "_.find(this, { name: name })"
+        }
+    }
+}, {
+    "name": "User Types",
+    "type": "static",
+    "config": [
+        { "name": "Global", "regex": "^Global users" },
+        { "name": "Inter-Agency", "value": "Country team", "regex": "^OU .+? Country team$" },
+        { "name": "Agency", "regex": "^OU .+? Agency " },
+        { "name": "Partner", "regex": "^OU .+? Partner " },
+        { "name": "MOH", "regex": "^Data MOH access$" }
+    ],
+    "extend": {
+        "fromUser": {
+            "args": [ "user" ],
+            "fn": "(this.filter(function (ut) { return (user.userGroups || []).some(function (ug) { return (new RegExp(ut.regex, 'i').test(ug.name)); }); })[0] || { name: 'Unknown type' }).name"
+        }
+    }
+}, {
+    "name": "User Actions",
+    "type": "static",
+    "requires": [ "User Roles" ],
+    "config": {
+        "roles": [
+            { "name": "Read Data", "userRole": "Read Only", "default": true },
+            { "name": "Accept data", "userRole": "Data Accepter" },
+            { "name": "Submit data", "userRole": "Data Submitter" },
+            { "name": "Manage users", "userRole": "User Administrator", "userGroupRestriction": true },
+            { "name": "View unapproved data", "userRole": "Unapproved Data Viewer", "default": true },
+            { "name": "Data Deduplication", "userRole": "Data Deduplication" },
+            { "name": "Data Entry EA", "userRole": "Data Entry EA" },
+            { "name": "Data Entry SI", "userRole": "Data Entry SI", "userEntityRequires": "normalEntry" },
+            { "name": "Data Entry SI Country Team", "userRole": "Data Entry SI Country Team" },
+            { "name": "Data Entry SI DOD", "userRole": "Data Entry SI DOD", "userEntityRequires": "dodEntry" },
+            { "name": "Data Entry SIMS", "userRole": "Data Entry SIMS" },
+            { "name": "Data Entry SIMS Key Populations", "userRole": "Data Entry SIMS Key Populations" },
+            { "name": "Tracker", "userRole": "Tracker" }
+        ],
+        "actions": {
+            "Global": [ "Read Data", "Accept data", "Submit data", "Manage users" ],
+            "Agency": [ "Read Data", "View unapproved data", "Accept data", "Submit data", "Manage users" ],
+            "Inter-Agency": [ "Read Data", "Accept data", "Submit data", "Manage users" ],
+            "Partner": [ "Read Data", "Submit data", "Manage users" ],
+            "Moh": [ "Read Data", "Manage users" ]
+        },
+        "dataEntryRestrictions": {
+            "normal": {
+                "Agency": {
+                    "SIMS": [ "Data Entry SIMS" ],
+                    "SIMS Key Populations": [ "Data Entry SIMS Key Populations" ]
+                },
+                "Inter-Agency": {
+                    "SI": [ "Data Entry SI Country Team", "Tracker", "Data Deduplication" ]
+                },
+                "Partner": {
+                    "SI": [ "Data Entry SI" ],
+                    "SI DOD": [ "Data Entry SI DOD" ],
+                    "EA": [ "Data Entry EA" ]
+                }
+            },
+            "manager": {
+                "Agency": {
+                    "SI": [ "Data Entry SI" ],
+                    "SI DOD": [ "Data Entry SI DOD" ],
+                    "SIMS": [ "Data Entry SIMS" ],
+                    "SIMS Key Populations": [ "Data Entry SIMS Key Populations" ],
+                    "EA": [ "Data Entry EA" ]
+                },
+                "Inter-Agency": {
+                    "SI": [ "Data Entry SI Country Team", "Tracker", "Data Deduplication", "Data Entry SI" ],
+                    "SI DOD": [ "Data Entry SI DOD" ],
+                    "SIMS": [ "Data Entry SIMS" ],
+                    "SIMS Key Populations": [ "Data Entry SIMS Key Populations" ],
+                    "EA": [ "Data Entry EA" ]
+                },
+                "Partner": {
+                    "SI": [ "Data Entry SI" ],
+                    "SI DOD": [ "Data Entry SI DOD" ],
+                    "EA": [ "Data Entry EA" ]
+                }
+            }
+        }
+    },
+    "extend": {
+        "isRoleApplicableToUser": {
+            "args": [ "role", "userEntity" ],
+            "fn": "!!role && (!userEntity || !role.userEntityRequires ? true : !!userEntity[role.userEntityRequires])"
+        },
+        "isDataEntryApplicableToUser": {
+            "args": [ "entryName", "userEntity" ],
+            "fn": "(entryName === 'SI DOD' && userEntity && userEntity.dodEntry) || (entryName === 'SI' && userEntity && userEntity.normalEntry) || (entryName !== 'SI' && entryName !== 'SI DOD')"
+        },
+        "getDataStreamKey": {
+            "args": [ "dataEntryName" ],
+            "fn": "dataEntryName === 'SI DOD' ? 'SI' : dataEntryName"
+        },
+        "getActionRoles": {
+            "fn": "this.roles.slice(0, 5)"
+        }
+    },
+    "filter": [
+        "this.roles.forEach(function (role) { role.userRoleId = (requires['User Roles'].getByName(role.userRole) || {}).id; }) || this"
+    ]
+}, {
+    "name": "Data Groups Definition",
+    "type": "static",
+    "config": [
+        { "name": "SI", "userTypes": [ "Agency", "Inter-Agency", "Partner" ] },
+        { "name": "EA", "userTypes": [ "Agency", "Inter-Agency", "Partner" ] },
+        { "name": "SIMS", "userTypes": [ "Agency", "Inter-Agency", "Partner" ] },
+        { "name": "SIMS Key Populations", "userTypes": [ "Agency", "Inter-Agency", "Partner" ] },
+        { "name": "MOH", "userTypes": [ "Agency", "Inter-Agency", "MOH" ] }
+    ],
+    "extend": {
+        "getNames": {
+            "args": [ "prefix", "suffix" ],
+            "fn": "this.map(function (dg) { return [prefix, dg.name, suffix].join(' ').trim(); })"
+        },
+        "getUserTypes": {
+            "args": [ "dataGroupName" ],
+            "fn": "(this.filter(function (dg) { return dg.name === dataGroupName; })[0] || {}).userTypes"
+        }
+    }
+}, {
+    "name": "Data Groups User Groups",
+    "requires": [ "Data Groups Definition" ],
+    "config": {
+        "datamodel": "userGroups",
+        "get": {
+            "filter": "name:in:[${requires['Data Groups Definition'].getNames('Data', 'access').join(',')}]"
+        },
+        "filter": "_.groupBy(this, function (ug) { return ug.name.replace(/^Data | access$/g, ''); })"
+    }
+}, {
+    "name": "Data Groups User Roles",
+    "requires": [ "Data Groups Definition" ],
+    "config": {
+        "datamodel": "userRoles",
+        "get": {
+            "filter": "name:in:[${requires['Data Groups Definition'].getNames('Data Entry').join(',')}]"
+        },
+        "filter": "_.groupBy(this, function (obj) { return obj.name.replace(/^Data Entry /, ''); })"
+    }
+}, {
+    "name": "Data Groups",
+    "type": "static",
+    "requires": [ "Current User", "Data Groups Definition", "Data Groups User Groups", "Data Groups User Roles" ],
+    "extend": {
+        "isAccessibleToUser": {
+            "args": [ "dataGroup", "user" ],
+            "fn": "_.difference(_.pluck(dataGroup.userGroups || [], 'id'), _.pluck(user.userGroups || [], 'id')).length === 0"
+        },
+        "isEntryForUser": {
+            "args": [ "dataGroup", "user" ],
+            "fn": "_.difference(_.pluck(dataGroup.userRoles || [], 'name'), _.pluck(user.userCredentials.userRoles || [], 'name')).length === 0"
+        },
+        "extendFromUser": {
+            "args": [ "dataGroup", "user" ],
+            "fn": "{ access: this.isAccessibleToUser(dataGroup, user), entry: this.isEntryForUser(dataGroup, user) }"
+        },
+        "fromUser": {
+            "args": [ "user" ],
+            "fn": "this.map(function (dg) { return _.assign(_.clone(dg), this.extendFromUser(dg, user)); }.bind(this))"
+        },
+        "filterByUserType": {
+            "args": [ "dataGroups", "userType" ],
+            "fn": "dataGroups.filter(function (dg) { var userTypes = requires['Data Groups Definition'].getUserTypes(dg.name); return !userType || !userTypes || userTypes.indexOf(userType) !== -1; })"
+        }
+    },
+    "filter": [
+        "requires['Data Groups Definition'].slice()",
+        "this.map(function (dg) { return (dg.userGroups = requires['Data Groups User Groups'][dg.name] || []) && dg; })",
+        "this.map(function (dg) { return (dg.userRoles = requires['Data Groups User Roles'][dg.name] || []) && dg; })",
+        "this.filter(function (dg) { return requires['Current User'].hasAllAuthority() || _.pluck(dg.userGroups, 'id').some(function (ugId) { return _.pluck(requires['Current User'].userGroups, 'id').indexOf(ugId) !== -1; }) })"
+    ]
+}, {
+    "name": "Organisation Units at Level",
+    "type": "dynamic",
+    "args": [ "level" ],
+    "config": {
+        "datamodel": "organisationUnits",
+        "get": {
+            "level": "${level}",
+            "fields": "id,name,displayName"
+        },
+        "filter": "_.sortBy(this, 'name')"
+    }
+}, {
+    "name": "Funding Agency COGS",
+    "config": {
+        "datamodel": "categoryOptionGroupSets",
+        "get": {
+            "fields": "id",
+            "filter": "name:eq:Funding Agency"
+        },
+        "filter": "(this[0] || {}).id"
+    }
+}, {
+    "name": "Agencies",
+    "requires": [ "Funding Agency COGS" ],
+    "config": {
+        "endpoint": "categoryOptionGroupSets",
+        "datamodel": "categoryOptionGroups",
+        "get": {
+            "fields": "categoryOptionGroups[id,name,code]",
+            "id": "${requires['Funding Agency COGS']}"
+        },
+        "filter": "_.sortBy(this.filter(function (agency) { return (agency && typeof agency.code === 'string' && agency.code !== ''); }), 'name')"
+    }
+}, {
+    "name": "Agencies in Organisation",
+    "type": "dynamic",
+    "requires": [ "Agencies" ],
+    "args": [ "organisationUnit" ],
+    "preflight": "organisationUnit && !!organisationUnit.name",
+    "config": {
+        "datamodel": "userGroups",
+        "get": {
+            "filter": "name:ilike:${organisationUnit.name} Agency"
+        },
+        "filter": [
+            "this.reduce(function (obj, ug) { return this.extendObj(obj, ug, this.getAgencyName(ug), this.getType(ug)); }.bind(this), {})",
+            "requires.Agencies.map(function (agency) { return _.extend({}, agency, this[agency.code]); }.bind(this))",
+            "this.filter(function (agency) { return agency.mechUserGroup && agency.mechUserGroup.id && agency.userUserGroup && agency.userUserGroup.id })"
+        ]
+    },
+    "extend": {
+        "getAgencyName": {
+            "args": [ "userGroup" ],
+            "fn": "(/Agency .+?(?= all| user)/i.exec(userGroup.name) || '').toString().replace('Agency ', 'Agency_')"
+        },
+        "getType": {
+            "args": [ "userGroup" ],
+            "fn": "(/all mechanisms$/i.test(userGroup.name) ? 'mechUserGroup' : (/user administrators$/i.test(userGroup.name) ? 'userAdminUserGroup' : 'userUserGroup'))"
+        },
+        "extendObj": {
+            "args": [ "obj", "userGroup", "agencyName", "groupType" ],
+            "fn": "(function () { obj[agencyName] = obj[agencyName] || {}; obj[agencyName][groupType] = userGroup; return obj; })()"
+        }
+    }
+}, {
+    "name": "DoD View ID",
+    "config": {
+        "endpoint": "systemSettings/keyAPP_User_Management-dod_only_SqlView",
+        "datamodel": "value"
+    }
+}, {
+    "name": "DoD View Data",
+    "requires": [ "DoD View ID" ],
+    "config": {
+        "endpoint": "sqlViews/${requires['DoD View ID']}/data.json",
+        "filter": "_.groupBy(this.rows.map(function (row) { return this.headers.reduce(function (obj, metadata, index) { obj[metadata.name] = row[index]; return obj; }, {}); }.bind(this)), 'ou')"
+    },
+    "extend": {
+        "hasEntry": {
+            "args": [ "orgUnitId", "partnerId" ],
+            "fn": "_.some(this[orgUnitId] || [], { partner: partnerId })"
+        },
+        "isNormalEntry": {
+            "args": [ "orgUnitId", "partnerId" ],
+            "fn": "(this.hasEntry(orgUnitId, partnerId) ? _.some(this[orgUnitId], { partner: partnerId, nondod: '1' }) : true)"
+        }
+    }
+}, {
+    "name": "Implementing Partner COGS",
+    "config": {
+        "datamodel": "categoryOptionGroupSets",
+        "get": {
+            "fields": "id",
+            "filter": "name:eq:Implementing Partner"
+        },
+        "filter": "(this[0] || {}).id"
+    }
+}, {
+    "name": "Partners",
+    "requires": [ "Implementing Partner COGS" ],
+    "config": {
+        "endpoint": "categoryOptionGroupSets",
+        "datamodel": "categoryOptionGroups",
+        "get": {
+            "fields": "categoryOptionGroups[id,name,code]",
+            "id": "${requires['Implementing Partner COGS']}"
+        },
+        "filter": "_.sortBy(this.filter(function (partner) { return (partner && typeof partner.code === 'string' && partner.code !== ''); }), 'name')"
+    }
+}, {
+    "name": "Partners in Organisation",
+    "requires": [ "Partners", "DoD View Data" ],
+    "type": "dynamic",
+    "args": [ "organisationUnit" ],
+    "preflight": "organisationUnit && !!organisationUnit.name",
+    "config": {
+        "datamodel": "userGroups",
+        "get": {
+            "filter": "name:ilike:${organisationUnit.name} Partner"
+        },
+        "filter": [
+            "this.reduce(function (obj, ug) { return this.extendObj(obj, ug, this.getPartnerCode(ug), this.getType(ug)); }.bind(this), {})",
+            "requires.Partners.map(function (partner) { return _.extend({}, partner, this[partner.code]); }.bind(this))",
+            "this.filter(function (partner) { return partner.mechUserGroup && partner.mechUserGroup.id && partner.userUserGroup && partner.userUserGroup.id; })",
+            "this.forEach(function (partner) { partner.dodEntry = requires['DoD View Data'].hasEntry(organisationUnit.id, partner.id); partner.normalEntry = requires['DoD View Data'].isNormalEntry(organisationUnit.id, partner.id); }) || this"
+        ]
+    },
+    "extend": {
+        "getPartnerCode": {
+            "args": [ "userGroup" ],
+            "fn": "(/Partner \\d+?(?= )/i.exec(userGroup.name) || '').toString().replace('Partner ', 'Partner_')"
+        },
+        "getType": {
+            "args": [ "userGroup" ],
+            "fn": "(/ all mechanisms - /i.test(userGroup.name) ? 'mechUserGroup' : (/ user administrators - /i.test(userGroup.name) ? 'userAdminUserGroup' : 'userUserGroup'))"
+        },
+        "extendObj": {
+            "args": [ "obj", "userGroup", "partnerName", "groupType" ],
+            "fn": "(function () { obj[partnerName] = obj[partnerName] || {}; obj[partnerName][groupType] = userGroup; return obj; })()"
+        }
+    }
+}, {
+    "name": "Interagency Groups",
+    "type": "dynamic",
+    "args": [ "organisationUnit" ],
+    "preflight": "organisationUnit && !!organisationUnit.name",
+    "config": [{
+        "name": "userUserGroup",
+        "datamodel": "userGroups",
+        "get": {
+            "filter": "name:ilike:OU ${organisationUnit.name} Country team"
+        },
+        "filter": "this.reduce(function (current, ug) { return (/OU .+? Country team/i).test(ug.name) ? ug : current; }, undefined)"
+    }, {
+        "name": "userAdminUserGroup",
+        "datamodel": "userGroups",
+        "get": {
+            "filter": "name:ilike:OU ${organisationUnit.name} user administrators"
+        },
+        "filter": "this.reduce(function (current, ug) { return (/OU .+? user administrators/i).test(ug.name) ? ug : current; }, undefined)"
+    }, {
+        "name": "mechUserGroup",
+        "datamodel": "userGroups",
+        "get": {
+            "filter": "name:ilike:OU ${organisationUnit.name} all mechanisms"
+        },
+        "filter": "this.reduce(function (current, ug) { return (/OU .+? all mechanisms/i).test(ug.name) ? ug : current; }, undefined)"
+    }]
+}, {
+    "name": "Category Dimension Constraint",
+    "config": {
+        "datamodel": "categories",
+        "get": {
+            "filter": "name:eq:Funding Mechanism"
+        },
+        "filter": "this[0]"
+    }
+}, {
+    "name": "Global User Groups",
+    "config": {
+        "datamodel": "userGroups",
+        "get": {
+            "filter": "name:in:[Global Users,Global User Administrators,Global all mechanisms]"
+        },
+        "filter": "this.reduce(function (obj, ug) { var key = (ug.name === 'Global Users' ? 'userUserGroup' : (ug.name === 'Global User Administrators' ? 'userAdminUserGroup' : 'mechUserGroup')); obj[key] = ug; return obj; }, {})"
+    }
+}]

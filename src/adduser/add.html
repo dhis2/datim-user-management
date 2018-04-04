@@ -20,7 +20,7 @@
         <locale-select user="user" required="true"></locale-select>
     </div>
 
-    <div class="form-controls-wrap row">
+    <div class="form-controls-wrap row" ng-show="addUser.hasUserManagerRole()">
         <div class="col-sm-12">
             <label for="usermanager">
                 <input id="usermanager" type="checkbox" ng-value="false" ng-model="addUser.isUserManager" ng-change="addUser.checkAllBoxesForUserManager()">
@@ -80,7 +80,7 @@
         <div class="well">
             <div class="user-manager-note">
                 <i class="fa fa-exclamation-triangle"></i>
-                <span>Because this a user manager the following additional roles will also be assigned (based on the user type)</span>
+                <span>Because this is a user manager the following additional roles will also be assigned (based on the user type)</span>
                 <ul>
                     <li ng-repeat="userRole in addUser.getDataEntryRolesNotShown()"><span ng-bind="::userRole.userRole" translate></span></li>
                 </ul>

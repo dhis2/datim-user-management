@@ -1,6 +1,6 @@
 angular.module('PEPFAR.usermanagement').controller('userListController', userListController);
 
-function userListController(userFilter, currentUser, userTypesService, dataGroupsService, userListService,  //jshint ignore:line
+function userListController(userFilter, currentUser, schemaService, dataGroupsService, userListService,  //jshint ignore:line
                             userStatusService, $state, errorHandler, userActions, userService, _) {
     var vm = this;
     var searchFieldNames = {
@@ -22,6 +22,7 @@ function userListController(userFilter, currentUser, userTypesService, dataGroup
     vm.listIsLoading = false;
     vm.currentPage = 1;
     vm.pageChanged = pageChanged;
+    vm.isUserAdministrator = currentUser.hasAllAuthority() || currentUser.isUserAdministrator();
     vm.activateUser = activateUser;
     vm.deactivateUser = deactivateUser;
     vm.isProcessing = isProcessing;
@@ -41,9 +42,19 @@ function userListController(userFilter, currentUser, userTypesService, dataGroup
     vm.removeFilter = removeFilter;
     vm.addFilter = addFilter;
     vm.resetFilters = resetFilters;
-    vm.canEditUser = canEditUser;
+    vm.getEditDisabledReasons = getEditDisabledReasons;
+    vm.showEditDisabledReason = showEditDisabledReason;
     vm.getCSVUrl = getCSVUrl;
+    vm.isDownloadingCSV = false;
+    vm.downloadAsCSV = downloadAsCSV;
     vm.setDisabledUserFilter = setDisabledUserFilter;
+    vm.selectedUserMap = {};
+    vm.selectedUsers = [];
+    vm.isAllUsersSelected = false;
+    vm.toggleSelectAll = toggleSelectAll;
+    vm.onSelectedUsersChanged = onSelectedUsersChanged;
+    vm.disableSelected = disableSelected;
+    vm.enableSelected = enableSelected;
 
     vm.search = {
         options: userFilter,
@@ -61,6 +72,7 @@ function userListController(userFilter, currentUser, userTypesService, dataGroup
 
     function initialise() {
         if (!currentUser.hasAllAuthority() && !currentUser.isUserAdministrator()) {
+            console.log('YOU DO NOT HAVE ACCESS -> hasAll = ', currentUser.hasAllAuthority(), 'isAdmin = ', currentUser.isUserAdministrator(), ' currentUser = ', currentUser);
             return $state.go('noaccess', {message: 'Your user account does not seem to have the authorities to access this functionality.'});
         }
         reloadFilters();
@@ -78,7 +90,12 @@ function userListController(userFilter, currentUser, userTypesService, dataGroup
     }
 
     function setUserList(users) {
+        if (users === null || users === undefined) {
+            return; // this was from a timeout, take no action
+        }
+
         vm.listIsLoading = false;
+        resetSelectedUsers();
         vm.users = users;
     }
 
@@ -132,7 +149,9 @@ function userListController(userFilter, currentUser, userTypesService, dataGroup
     //      Very nice solution provided by Paul but we should move it into a directive.
     //TODO: Perhaps it would also be nice to never have it be out of sight if it is available?
     var detailsBlock = jQuery('.user-details-view');
-    function showDetails(user) {
+    function showDetails(user, $event) {
+        if ($event && $event.target && $event.target.nodeName === 'INPUT') { return; }
+
         var detailsRow = jQuery('.user-list li[user-id=' + user.id + ']');
         var detailsWrap = detailsRow.parent();
         var parentHeight = detailsWrap.innerHeight();
@@ -153,7 +172,7 @@ function userListController(userFilter, currentUser, userTypesService, dataGroup
             vm.detailsUser = user;
             vm.detailsOpen = true;
             vm.getDataGroupsForUser(user);
-            vm.detailsUserUserType = userTypesService.getUserType(user);
+            vm.detailsUserUserType = schemaService.store.get('User Types', true).fromUser(user);
 
             vm.detailsUserEntity = {};
             userService.getUserEntity(user)
@@ -179,26 +198,9 @@ function userListController(userFilter, currentUser, userTypesService, dataGroup
     }
 
     function getDataGroupsForUser(user) {
-        dataGroupsService.getDataGroupsForUser(user)
-            .then(function (dataGroups) {
-                dataGroups.forEach(function (dataGroup) {
-                    var exactMatch = new RegExp('^Data Entry ' + dataGroup.name + '$', 'i');
-                    var startMatch = new RegExp('^Data Entry ' + dataGroup.name + ' .+$', 'i');
-
-                    var userRoles = (user.userCredentials && user.userCredentials.userRoles) || [];
-
-                    var hasDataEntryForGroup = userRoles.some(function (userRole) {
-                        return exactMatch.test(userRole.name) || startMatch.test(userRole.name);
-                    });
-
-                    dataGroup.entry = hasDataEntryForGroup;
-                });
-
-                vm.detailsUserDataGroups = dataGroups;
-            })
-            .catch(function () {
-                errorHandler.warning('Failed to load datagroups for user');
-            });
+        schemaService.store.get('Data Groups').then(function (dataGroups) {
+            vm.detailsUserDataGroups = dataGroups.fromUser(user);
+        });
     }
 
     function updatePlaceholder($index) {
@@ -325,7 +327,7 @@ function userListController(userFilter, currentUser, userTypesService, dataGroup
     }
 
     function editUser(user) {
-        if (userTypesService.getUserType(user) === 'Global') {
+        if (schemaService.store.get('User Types', true).fromUser(user) === 'Global') {
             $state.go('globalEdit', {userId: user.id, username: user.userCredentials.username});
             return;
         }
@@ -335,19 +337,75 @@ function userListController(userFilter, currentUser, userTypesService, dataGroup
         }
     }
 
-    function canEditUser(user) {
-        if (currentUser.isGlobalUser() && !currentUser.hasAllAuthority() && userTypesService.getUserType(user) !== 'Global') {
-            return false;
+    function getEditDisabledReasons(user) {
+        var userTypes = schemaService.store.get('User Types', true);
+        var userType = userTypes.fromUser(user);
+        var currentUserType = userTypes.fromUser(currentUser);
+
+        var isSuperUser = currentUser.hasAllAuthority();
+
+        var errors = [];
+
+        if (currentUser.isGlobalUser() && !isSuperUser && userType !== 'Global') {
+            errors.push('"Global" user cannot edit this "' + userType + '" user');
         }
 
-        if (user && user.id && (user.id !== currentUser.id) && userTypesService.getUserType(user) !== 'Unknown type') {
-            return true;
+        if (currentUserType === 'MOH' && !isSuperUser && userType !== 'MOH') {
+            errors.push('"MOH" user cannot edit this "' + userType + '" user');
         }
-        return false;
+
+        if (user && user.id && user.id === currentUser.id) {
+            errors.push('You cannot edit yourself');
+        }
+
+        if (userType === 'Unknown type') {
+            errors.push('They do not conform to a known type');
+        }
+
+        var unmanagableGroups = (user.userGroups || []).filter(function (userGroup) {
+            return !userGroup || !userGroup.access || !userGroup.access.manage;
+        });
+
+        // Cannot manage ANY group
+        if (!isSuperUser && unmanagableGroups.length !== 0 && unmanagableGroups.length === user.userGroups.length) {
+            unmanagableGroups.forEach(function (userGroup) {
+                errors.push('They are a member of the "' + userGroup.name + '" group which you are not');
+            });
+        }
+
+        if (!isSuperUser && user.userCredentials && user.userCredentials.userRoles) {
+            var currentUserRoles = (currentUser.userCredentials && currentUser.userCredentials.userRoles) || [];
+            var currentUserRolesMap = _.indexBy(currentUserRoles, 'id');
+
+            user.userCredentials.userRoles.forEach(function (userRole) {
+                if (!currentUserRolesMap[userRole.id]) {
+                    errors.push('They have the role "' + userRole.name + '" which you do not');
+                }
+            });
+        }
+
+        return errors;
+    }
+
+    function showEditDisabledReason(user) {
+        var reasons = getEditDisabledReasons(user);
+        var html = 'You cannot modify this user because: <ul><li>' +
+            reasons.join('</li><li>') +
+            '</li></ul>';
+
+        toastr.warning(html, undefined, { timeOut: 0, extendedTimeOut: 0 })
+            .addClass('user-list-edituser-warning');
     }
 
     function getCSVUrl() {
         return userListService.getCSVUrl();
+    }
+
+    function downloadAsCSV() {
+        vm.isDownloadingCSV = true;
+        userListService.downloadAsCSV().then(function () {
+            vm.isDownloadingCSV = false;
+        });
     }
 
     function setDisabledUserFilter(disabledUsersOnly) {
@@ -356,5 +414,44 @@ function userListController(userFilter, currentUser, userTypesService, dataGroup
             vm.disabledUserFilter = filter;
             doSearch();
         }
+    }
+
+    function onSelectedUsersChanged() {
+        vm.selectedUsers.length = 0;
+        vm.selectedUsers = Object.keys(vm.selectedUserMap).reduce(function (selectedUsers, index) {
+            if (vm.selectedUserMap[index] === true) {
+                selectedUsers.push(vm.users[index]);
+            }
+            return selectedUsers;
+        }, vm.selectedUsers);
+
+        vm.isAllUsersSelected = (vm.selectedUsers.length === vm.users.length);
+    }
+
+    function toggleSelectAll() {
+        if (!vm.isAllUsersSelected) {
+            resetSelectedUsers();
+        }
+        else {
+            vm.selectedUsers.length = 0;
+            vm.users.forEach(function (user, index) {
+                vm.selectedUserMap[index] = true;
+                vm.selectedUsers.push(user);
+            });
+        }
+    }
+
+    function resetSelectedUsers() {
+        vm.selectedUserMap = {};
+        vm.selectedUsers.length = 0;
+        vm.isAllUsersSelected = false;
+    }
+
+    function disableSelected() {
+        vm.selectedUsers.filter(function (user) { return !user.userCredentials.disabled && user.id !== currentUser.id; }).forEach(deactivateUser);
+    }
+
+    function enableSelected() {
+        vm.selectedUsers.filter(function (user) { return user.userCredentials.disabled && user.id !== currentUser.id; }).forEach(activateUser);
     }
 }

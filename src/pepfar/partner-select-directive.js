@@ -1,6 +1,6 @@
 angular.module('PEPFAR.usermanagement').directive('partnerSelect', partnerSelectDirective);
 
-function partnerSelectDirective(partnersService, $translate, errorHandler) {
+function partnerSelectDirective(schemaService, $translate, errorHandler) {
     return {
         restrict: 'E',
         replace: true,
@@ -23,7 +23,7 @@ function partnerSelectDirective(partnersService, $translate, errorHandler) {
                 orgUnit = orgUnit || {};
 
                 errorHandler.debug('Loading partners for: ', orgUnit.name);
-                partnersService.getPartners(orgUnit).then(function (partners) {
+                schemaService.store.get('Partners in Organisation', orgUnit).then(function (partners) {
                     scope.selectbox.items = partners;
                 });
             }

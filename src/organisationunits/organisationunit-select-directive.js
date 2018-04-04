@@ -1,6 +1,6 @@
 angular.module('PEPFAR.usermanagement').directive('organisationUnitSelect', organisationUnitSelectDirective);
 
-function organisationUnitSelectDirective(organisationUnitService, $translate, errorHandler) {
+function organisationUnitSelectDirective(schemaService, $translate, errorHandler) {
     return {
         restrict: 'E',
         replace: true,
@@ -13,7 +13,8 @@ function organisationUnitSelectDirective(organisationUnitService, $translate, er
             };
 
             errorHandler.debug('Loading organisation units for level: 3');
-            organisationUnitService.getOrganisationUnitsForLevel(3)
+
+            schemaService.store.get('Organisation Units at Level', 3)
                 .then(function (organisationUnits) {
                     scope.selectbox.items = organisationUnits;
                 });

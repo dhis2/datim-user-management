@@ -1,6 +1,6 @@
 angular.module('PEPFAR.usermanagement').directive('selectUsertype', userTypeSelectDirective);
 
-function userTypeSelectDirective(partnersService, agenciesService, interAgencyService, errorHandler) {
+function userTypeSelectDirective(schemaService, errorHandler, $q, _) {
     var directive = {
         restrict: 'E',
         replace: true,
@@ -34,29 +34,30 @@ function userTypeSelectDirective(partnersService, agenciesService, interAgencySe
         function loadValues(orgUnit) {
             scope.selectbox.items = [];
 
-            interAgencyService.getUserGroups(orgUnit).then(function (interAgency) {
-                scope.userTypes.forEach(function (item) {
-                    if (item.name === 'Inter-Agency' &&
-                        (interAgency.userUserGroup || interAgency.userUserGroup)) {
-                        scope.selectbox.items.push(item);
-                    }
-                });
-            });
+            $q.all([
+                schemaService.store.get('Interagency Groups', orgUnit),
+                schemaService.store.get('Agencies in Organisation', orgUnit),
+                schemaService.store.get('Partners in Organisation', orgUnit)
+            ]).then(function (results) {
+                var interAgency = results[0];
+                var agencies = results[1];
+                var partners = results[2];
 
-            agenciesService.getAgencies(orgUnit).then(function () {
                 scope.userTypes.forEach(function (item) {
                     if (item.name === 'Agency') {
                         scope.selectbox.items.push(item);
+                        // TODO: check "agencies" variable for data?
                     }
-                });
-            });
-
-            partnersService.getPartners(orgUnit).then(function () {
-                scope.userTypes.forEach(function (item) {
-                    if (item.name === 'Partner') {
+                    else if (item.name === 'Inter-Agency' && interAgency && (interAgency.userUserGroup || interAgency.userUserGroup)) {
                         scope.selectbox.items.push(item);
                     }
+                    else if (item.name !== 'Global') {
+                        scope.selectbox.items.push(item);
+                        // TODO: check "partners" variable for data?
+                    }
                 });
+
+                scope.selectbox.items = _.sortBy(scope.selectbox.items, 'name');
             });
         }
     }

@@ -1,6 +1,6 @@
 angular.module('PEPFAR.usermanagement').factory('userService', userService);
 
-function userService($q, Restangular, userUtils, partnersService, agenciesService, interAgencyService, errorHandler, dataEntryService) {
+function userService($q, Restangular, userUtils, schemaService, errorHandler, dataEntryService) {
     var userInviteObjectStructure = {
         email:'',
         organisationUnits:[
@@ -322,10 +322,9 @@ function userService($q, Restangular, userUtils, partnersService, agenciesServic
         }
 
         return $q.all([
-                partnersService.getPartners(organisationUnit),
-                agenciesService.getAgencies(organisationUnit)
-                    .then(returnValue, returnEmptyArray),
-                interAgencyService.getUserGroups(organisationUnit)
+                schemaService.store.get('Partners in Organisation', organisationUnit),
+                schemaService.store.get('Agencies in Organisation', organisationUnit),
+                schemaService.store.get('Interagency Groups', organisationUnit)
             ])
             .then(function (responses) {
                 return (responses[0] || [])

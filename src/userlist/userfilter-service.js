@@ -1,7 +1,8 @@
 angular.module('PEPFAR.usermanagement').service('userFilterService', userFilterService);
 
-function userFilterService($q, userTypesService, organisationUnitService, currentUserService, userRolesService) {
+function userFilterService($q, schemaService) {
     var deferred = $q.defer();
+
     var userFilter = [
         {name: 'Name'},
         {name: 'Username'},
@@ -11,29 +12,17 @@ function userFilterService($q, userTypesService, organisationUnitService, curren
     deferred.resolve(userFilter);
 
     initialise();
+
     return {
         getUserFilter: getUserFilter
     };
 
     function initialise() {
-        organisationUnitService.getOrganisationUnitsForLevel(3)
-            .then(function (organisationUnits) {
-                userFilter.push({name: 'Organisation Unit', secondary: organisationUnits});
-            });
-
-        userTypesService.getUserTypes()
-            .then(function (userTypes) {
-                userTypes = userTypes.map(function (userType) {
-                    if (userType.name === 'Inter-Agency') {
-                        userType.value = 'Country team';
-                    }
-                    return userType;
-                });
-                userFilter.push({name: 'Types', secondary: userTypes});
-            });
+        schemaService.store.get('Organisation Units at Level', 3).then(pushUserFilter('Organisation Unit'));
+        schemaService.store.get('User Types').then(pushUserFilter('Types'));
 
         // TODO: Write some tests for this..
-        $q.all([currentUserService.getCurrentUser(), userRolesService.getAllUserRoles()])
+        $q.all([schemaService.store.get('Current User'), schemaService.store.get('User Roles')])
             .then(function (responses) {
                 var currentUser = responses[0];
                 var allUserRoles = responses[1];
@@ -63,5 +52,11 @@ function userFilterService($q, userTypesService, organisationUnitService, curren
 
     function getUserFilter() {
         return deferred.promise;
+    }
+
+    function pushUserFilter(name) {
+        return function (data) {
+            userFilter.push({ name: name, secondary: data });
+        }
     }
 }

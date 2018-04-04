@@ -16,7 +16,7 @@ function dataEntryDirective() {
         templateUrl: 'dataentry/dataentry.html'
     };
 
-    function umDataEntryController($q, $scope, userActionsService, currentUserService, userService,
+    function umDataEntryController($q, $scope, userActionsService, schemaService, userService,
                                    userUtils, notify, errorHandler, dataEntryService) {
         var vm = this;
 
@@ -24,7 +24,7 @@ function dataEntryDirective() {
         vm.dataEntryRoles = dataEntryService;
 
         function updateDataEntry(dataEntryName) {
-            var streamName = getStreamNameFromDataEntryName(dataEntryName);
+            var streamName = vm.userActions.getDataStreamKey(dataEntryName);
             var userGroupsThatApplyForDataEntryForUserType = vm.userActions
                     .getDataEntryRestrictionDataGroups(vm.userType || vm.user.userType.name);
 
@@ -43,15 +43,8 @@ function dataEntryDirective() {
             }
         }
 
-        function getStreamNameFromDataEntryName(dataEntryName) {
-            if (dataEntryName === 'SI DOD') {
-                return 'SI';
-            }
-            return dataEntryName;
-        }
-
         function initialise() {
-            $q.all([currentUserService.getCurrentUser(), userActionsService.getActions()])
+            $q.all([schemaService.store.get('Current User'), userActionsService.getActions()])
                 .then(function (responses) {
                     vm.currentUser = responses[0];
                     vm.userActions = responses[1];
@@ -80,9 +73,8 @@ function dataEntryDirective() {
                         return dataEntryStreams;
                     });
                 })
-                    .then(handleDataEnty)
-                    .catch(errorHandler.error);
-
+                .then(handleDataEnty)
+                .catch(errorHandler.error);
             } else {
                 //Register a watch for the invite screen since usertype is subject to changes
                 //TODO: See if we can do this without a watch
@@ -96,7 +88,6 @@ function dataEntryDirective() {
                             if (vm.user.userEntity && vm.user.userEntity.name) {
                                 dataEntryTypes = userUtils.getDataEntryStreamNamesForUserType(vm.currentUser, vm.userActions, vm.user.userType.name);
 
-                                //TODO: Do the dod only stuff here
                                 dataEntryTypes = filterDataEntryStreamsForUserEntity(vm.user.userEntity, dataEntryTypes);
                             }
                             switchOffUnavailableDataEntry(vm.user.userEntity);
@@ -109,13 +100,18 @@ function dataEntryDirective() {
             }
 
             function switchOffUnavailableDataEntry(userEntity) {
-                if (userEntity && !userEntity.dodEntry) {
-                    dataEntryService.dataEntryRoles['SI DOD'] = false;
-                }
+                var isManager = $scope.isUserManager === true || $scope.isUserManager === 'true';
+                var userType = vm.user.userType.name;
 
-                if (userEntity && !userEntity.normalEntry) {
-                    dataEntryService.dataEntryRoles.SI = false;
-                }
+                var dataEntryRestrictions = vm.userActions[isManager ? 'dataEntryRestrictions' : 'dataEntryRestrictionsUserManager'];
+                var dataEntryNames = Object.keys(dataEntryRestrictions[userType] || {});
+
+                Object.keys(dataEntryService.dataEntryRoles || {}).forEach(function (key) {
+                    var falseify = (dataEntryNames.indexOf(key) === -1 || !vm.userActions.isDataEntryApplicableToUser(userEntity));
+                    if (falseify) {
+                        dataEntryService.dataEntryRoles[key] = false;
+                    }
+                });
 
                 return userEntity;
             }
@@ -128,10 +124,8 @@ function dataEntryDirective() {
                 errorHandler.debug('===================================');
 
                 return dataEntryStreams
-                    .filter(function (streamName) {
-                        return ((streamName === 'SI DOD' && userEntity.dodEntry) ||
-                            (streamName === 'SI' && userEntity.normalEntry)) ||
-                            (streamName !== 'SI' && streamName !== 'SI DOD');
+                    .filter(function (name) {
+                        return vm.userActions.isDataEntryApplicableToUser(name, userEntity);
                     });
             }
 
@@ -144,7 +138,7 @@ function dataEntryDirective() {
                     return userRole.id;
                 });
 
-                Object.keys(vm.userActions.dataEntryRestrictions[vm.userType]).forEach(function (dataEntryName) {
+                Object.keys(vm.userActions.dataEntryRestrictions[vm.userType] || {}).forEach(function (dataEntryName) {
                     var hasEntryRolesRequired = vm.userActions.dataEntryRestrictions[vm.userType][dataEntryName].every(function (expectedRole) {
                         return userRoleIds.indexOf(expectedRole.userRoleId) >= 0;
                     });
@@ -153,16 +147,6 @@ function dataEntryDirective() {
                         dataEntryService.dataEntryRoles[dataEntryName] = true;
                     }
                 });
-
-                //FIXME: Special case hack for the 'Data Entry SI Country Team' case
-                var hasInterAgencySI = vm.userToEdit.userCredentials.userRoles.some(function (userRole) {
-                    return userRole.name === 'Data Entry SI Country Team';
-                });
-
-                if (hasInterAgencySI) {
-                    dataEntryService.dataEntryRoles.SI = true;
-                }
-                //End hack
             }
         }
 

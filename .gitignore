@@ -14,7 +14,7 @@ dev/
 
 coverage
 
-*.zip
+/*.zip
 src/main/_manifest.webapp
 
 dhis.json

@@ -1,6 +1,6 @@
 {
   "name": "pepfar-user-management",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "PEPFAR User management app",
   "main": "index.js",
   "repository": "https://github.com/dhis2/user-management-pepfar.git",

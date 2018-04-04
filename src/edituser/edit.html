@@ -28,7 +28,7 @@
                 </div>
             </div>
 
-            <div class="form-controls-wrap row">
+            <div class="form-controls-wrap row" ng-if="editUser.hasUserManagerRole()">
                 <div class="col-sm-12">
                     <label for="usermanager">
                         <input id="usermanager" type="checkbox" ng-value="false" ng-model="editUser.isUserManager" ng-change="editUser.checkAllBoxesForUserManager()">
@@ -94,7 +94,7 @@
                 <div class="well">
                     <div class="user-manager-note">
                         <i class="fa fa-exclamation-triangle"></i>
-                        <span>Because this a user manager the following additional roles will also be assigned (based on the user type)</span>
+                        <span>Because this is a user manager the following additional roles will also be assigned (based on the user type)</span>
                         <ul>
                             <li ng-repeat="userRole in editUser.getDataEntryRolesNotShown()"><span ng-bind="::userRole.userRole" translate></span></li>
                         </ul>

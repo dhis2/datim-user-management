@@ -17,7 +17,8 @@
         <div class="button-group">
             <a ng-show="app.isGlobalUser || app.hasAllAuthority" ng-disabled="app.currentState == 'globalAdd'" class="btn btn-default ng-hide" ui-sref="globalAdd"><i class="fa fa-plus-square-o"></i> <span translate>Invite Global user</span></a>
             <a ng-show="!app.isGlobalUser || app.hasAllAuthority" ng-disabled="app.currentState == 'add'" class="btn btn-default" ui-sref="add"><i class="fa fa-plus-square-o"></i> <span translate>Invite user</span></a>
-            <a ng-disabled="app.currentState == 'list'" class="btn btn-default" ui-sref="list"><i class="fa fa-users"></i> <span translate>Manage users</span></a>
+            <a ng-disabled="app.currentState == 'list'" class="btn btn-default" ui-sref="list"><i class="fa fa-user"></i> <span translate>Manage users</span></a>
+            <!--<a ng-show="app.hasAllAuthority" ng-disabled="app.currentState == 'manageUserGroups'" class="btn btn-default" ui-sref="manageUserGroups"><i class="fa fa-users"></i> <span translate>Manage user groups</span></a>-->
         </div>
         <h1 class="main-title" ng-bind="app.subTitle"></h1>
         <h2 class="sub-title" ng-bind="app.title"></h2>

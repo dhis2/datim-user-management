@@ -1,17 +1,17 @@
 angular.module('PEPFAR.usermanagement').controller('globalUserEditController', globalUserEditController);
 
-function globalUserEditController(notify, userGroups, userActions, userToEdit, userLocale, userUtils, userService, userTypesService, $q) {
+function globalUserEditController(notify, userGroups, userActions, userToEdit, userLocale, userUtils, userService, schemaService, $q) {
     'use strict';
     /*jshint validthis: true*/
     var vm = this;
+
+    var allUserActions = { 'Manage users': userUtils.hasUserAdminRights(userToEdit) };
 
     //Properties
     vm.user = {
         email: userToEdit.email,
         locale: userLocale,
-        userActions: {
-            'Manage users': userUtils.hasUserAdminRights(userToEdit)
-        }
+        userActions: allUserActions
     };
     vm.isProcessing = false;
     vm.userToEdit = userToEdit;
@@ -31,7 +31,7 @@ function globalUserEditController(notify, userGroups, userActions, userToEdit, u
     }
 
     function getUserType() {
-        return userTypesService.getUserType(userToEdit);
+        return schemaService.store.get('User Types', true).fromUser(userToEdit);
     }
 
     function changeUserStatus() {

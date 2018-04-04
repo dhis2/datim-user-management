@@ -2,7 +2,7 @@ angular.module('PEPFAR.usermanagement').controller('editUserController', editUse
 
 function editUserController($scope, $state, currentUser, dataGroups, dataGroupsService, userToEdit, //jshint maxstatements: 55
                             userLocale, userFormService, userActions, dataEntryService,
-                            notify, userService, userTypesService, userUtils, errorHandler, userEntity) {
+                            notify, userService, schemaService, userUtils, errorHandler, userEntity) {
     var vm = this;
     var validations = userFormService.getValidations();
 
@@ -19,6 +19,7 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
     vm.userEntityName = '';
     vm.isUserManager = userUtils.hasUserAdminRights(userToEdit);
 
+    vm.hasUserManagerRole = hasUserManagerRole;
     vm.validateDataGroups = validateDataGroups;
     vm.isRequiredDataStreamSelected = isRequiredDataStreamSelected;
     vm.editUser = editUser;
@@ -47,9 +48,14 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
         }
 
         //Reset data entry service state
+        dataEntryService.userActions = userActions;
         dataEntryService.reset();
 
-        dataGroupsService.getDataGroupsForUser(userToEdit)
+        schemaService.store.get('Data Groups').then(function (dataGroups) {
+                var dataGroupsFromUser = dataGroups.fromUser(userToEdit);
+                schemaService.helpers.cloneFunctions(dataGroups, dataGroupsFromUser);
+                return dataGroupsFromUser;
+            })
             .then(correctUserRolesForType)
             .then(createDataGroupsObject);
 
@@ -107,6 +113,10 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
         userUtils.updateDataEntry(getUserType(), userActions, streamName, $scope);
     }
 
+    function hasUserManagerRole() {
+        return userActions.hasManageUsersAction(getUserType());
+    }
+
     function validateDataGroups() {
         return validations.validateDataGroups($scope.user.dataGroups);
     }
@@ -122,23 +132,71 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
         userToEdit.userCredentials.userRoles = userActions.combineSelectedUserRolesWithExisting(vm.userToEdit, vm.user, vm.dataGroups, vm.actions, getUserType());
         userToEdit.userGroups = userGroups;
 
-        fixUserManagementRole();
-        addExtraUserManagementRoles();
+        toggleMohUserAdminGroup(function () {
+            fixUserManagementRole();
+            addExtraUserManagementRoles();
 
-        setProcessingTo(true);
+            setProcessingTo(true);
 
-        userService.updateUser(userToEdit)
-            .then(function () {
-                if ($scope.user.locale && $scope.user.locale.code) {
-                    saveUserLocale()
-                        .then(notifyUserOfSuccessfullSave)
-                        .catch(notifyUserOfFailedLocaleSave);
-                } else {
-                    notifyUserOfSuccessfullSave();
+            userService.updateUser(userToEdit)
+                .then(function () {
+                    if ($scope.user.locale && $scope.user.locale.code) {
+                        saveUserLocale()
+                            .then(notifyUserOfSuccessfullSave)
+                            .catch(notifyUserOfFailedLocaleSave);
+                    } else {
+                        notifyUserOfSuccessfullSave();
+                    }
+                })
+                .catch(errorHandler.errorFn('Failed to save user'))
+                .finally(setProcessingToFalse);
+        });
+    }
+
+    function toggleMohUserAdminGroup(callback) {
+        var userType = getUserType();
+        var orgUnit = userToEdit.organisationUnits && userToEdit.organisationUnits[0];
+
+        var applicableUserTypes = schemaService.store.get('Data Groups Definition', true)
+            .getUserTypes('MOH') || [];
+        var shouldToggle = applicableUserTypes.indexOf(userType) !== -1;
+
+        if (!shouldToggle) {
+            return callback();
+        }
+
+        schemaService.store.get('MOH Groups', orgUnit).then(function (mohUserGroups) {
+            var mohAdminGroup = mohUserGroups.userAdminUserGroup;
+            var mohUserGroup = mohUserGroups.userUserGroup;
+
+            var groupIds, groupIndex;
+
+            if (mohAdminGroup && mohAdminGroup.id) {
+                groupIds = userToEdit.userGroups.map(function (g) { return g.id; });
+                groupIndex = groupIds.indexOf(mohAdminGroup.id);
+
+                if (vm.isUserManager && groupIndex === -1) {
+                    userToEdit.userGroups.push(mohAdminGroup);
                 }
-            })
-            .catch(errorHandler.errorFn('Failed to save user'))
-            .finally(setProcessingToFalse);
+                else if (!vm.isUserManager && groupIndex > -1) {
+                    userToEdit.userGroups.splice(groupIndex, 1);
+                }
+            }
+
+            if (mohUserGroup && mohUserGroup.id) {
+                groupIds = userToEdit.userGroups.map(function (g) { return g.id; });
+                groupIndex = groupIds.indexOf(mohUserGroup.id);
+
+                if (vm.isUserManager && groupIndex === -1) {
+                    userToEdit.userGroups.push(mohUserGroup);
+                }
+                else if (!vm.isUserManager && userType !== 'MOH') {
+                    userToEdit.userGroups.splice(groupIndex, 1);
+                }
+            }
+
+            callback();
+        });
     }
 
     function fixUserManagementRole() {
@@ -245,7 +303,7 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
     }
 
     function getUserType() {
-        return userTypesService.getUserType(userToEdit);
+        return schemaService.store.get('User Types', true).fromUser(userToEdit);
     }
 
     function changeUserStatus() {
@@ -303,7 +361,9 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
     }
 
     function getDataGroupsForUserType(dataGroups) {
-        return userUtils.getDataGroupsForUserType(dataGroups, getUserType);
+        var validGroups = userUtils.getDataGroupsForUserType(dataGroups, getUserType) || [];
+        schemaService.helpers.cloneFunctions(dataGroups, validGroups);
+        return validGroups;
     }
 
     function getUserManagerDataEntryRoles() {

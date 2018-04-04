@@ -1,6 +1,6 @@
 angular.module('PEPFAR.usermanagement').controller('appController', appController);
 
-function appController($scope, Restangular, webappManifest, errorHandler, currentUserService) {
+function appController($scope, Restangular, webappManifest, errorHandler, schemaService) {
     var vm = this;
 
     vm.title = 'User management';
@@ -21,7 +21,8 @@ function appController($scope, Restangular, webappManifest, errorHandler, curren
         edit: 'Edit user',
         noaccess: 'No access',
         globalAdd: 'Invite Global user',
-        globalEdit: 'Edit Global user'
+        globalEdit: 'Edit Global user',
+        manageUserGroups: 'Manage user groups'
     };
 
     initialise();
@@ -55,7 +56,7 @@ function appController($scope, Restangular, webappManifest, errorHandler, curren
                 vm.headerBar.link = [baseUrl, systemSettings.startModule, 'index.action'].join('/');
             });
 
-        currentUserService.getCurrentUser()
+        schemaService.store.get('Current User')
             .then(function (currentUser) {
                 console.log(currentUser);
                 if (currentUser.isGlobalUser() && currentUser.isUserAdministrator()) {

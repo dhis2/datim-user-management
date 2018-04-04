@@ -20,6 +20,7 @@ var files = [
     'vendor/angular-bootstrap/ui-bootstrap-tpls.js',
     'vendor/angular-messages/angular-messages.js',
     'vendor/angular-ui-utils/validate.js',
+    'vendor/file-saver/FileSaver.js',
 
     //Test specific includes
     'test/fixtures/fixtures.js',

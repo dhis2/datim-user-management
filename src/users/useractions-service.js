@@ -1,166 +1,70 @@
 /* globals has, pick, flatten */
 angular.module('PEPFAR.usermanagement').factory('userActionsService', userActionsService);
 
-function userActionsService(Restangular, $q, userTypesService,
-                            currentUserService, errorHandler, dataEntryService) {
-    var availableAgencyActions = [
-        'Read data', 'Accept data', 'Submit data', 'View unapproved data'
-    ];
-    var availableInterAgencyActions = [
-        'Read data', 'Accept data', 'Submit data'
-    ];
-    var availablePartnerActions =  [
-        'Read data', 'Submit data'
-    ];
-
-    /**
-     * The actions will be parsed when the userRoles are loaded from the api and a userRoleId property will be added/filled with the uid for that userRole
-     */
-    var actions = [
-        {name: 'Accept data', userRole: 'Data Accepter', userRoleId: undefined},
-        {name: 'Submit data', userRole: 'Data Submitter', userRoleId: undefined},
-        {name: 'Manage users', userRole: 'User Administrator', userRoleId: undefined, userGroupRestriction: true},
-        {name: 'Read data', userRole: 'Read Only', userRoleId: undefined, default: true},
-        {name: "View unapproved data", userRole: "Unapproved Data Viewer", userRoleId: undefined, default: true }
-    ];
-
-    /**
-     * The dataEntryRestrictions will be parsed when the userRoles are loaded from the api and a userRoleId property will be added/filled with the uid for that userRole
-     */
-    var dataEntryRestrictions = {
-        'Inter-Agency': {
-            SI: [
-                {userRole: 'Data Entry SI Country Team', userRoleId: undefined},
-                {userRole: 'Tracker', userRoleId: undefined},
-                {userRole: 'Data Deduplication', userRoleId: undefined}
-            ]
-        },
-        Agency: {
-            SIMS: [
-                {userRole: 'Data Entry SIMS', userRoleId: undefined}
-
-            ],
-            'SIMS Key Populations': [
-                {userRole: 'Data Entry SIMS Key Populations', userRoleId: undefined}
-            ]
-        },
-        Partner: {
-            SI: [
-                {userRole: 'Data Entry SI', userRoleId: undefined}
-            ],
-            'SI DOD': [
-                {userRole: 'Data Entry SI DOD', userRoleId: undefined}
-            ],
-            EA: [
-                {userRole: 'Data Entry EA', userRoleId: undefined}
-            ]
-        }
-    };
-
-    /**
-     * The dataEntryRestrictionsUserManager structure will be parsed when the userRoles are loaded from the api and a userRoleId property will be added/filled with the uid for that userRole
-     */
-    var dataEntryRestrictionsUserManager = {
-        'Inter-Agency': {
-            SI: [
-                {userRole: 'Data Entry SI Country Team', userRoleId: undefined},
-                {userRole: 'Tracker', userRoleId: undefined},
-                {userRole: 'Data Deduplication', userRoleId: undefined},
-                {userRole: 'Data Entry SI', userRoleId: undefined}
-            ],
-            'SI DOD': [
-                {userRole: 'Data Entry SI DOD', userRoleId: undefined}
-            ],
-            SIMS: [
-                {userRole: 'Data Entry SIMS', userRoleId: undefined}
-            ],
-            'SIMS Key Populations': [
-                {userRole: 'Data Entry SIMS Key Populations', userRoleId: undefined}
-            ],
-            EA: [
-                {userRole: 'Data Entry EA', userRoleId: undefined}
-            ]
-        },
-        Agency: {
-            SI: [
-                {userRole: 'Data Entry SI', userRoleId: undefined}
-            ],
-            'SI DOD': [
-                {userRole: 'Data Entry SI DOD', userRoleId: undefined}
-            ],
-            SIMS: [
-                {userRole: 'Data Entry SIMS', userRoleId: undefined}
-            ],
-            'SIMS Key Populations': [
-                {userRole: 'Data Entry SIMS Key Populations', userRoleId: undefined}
-            ],
-            EA: [
-                {userRole: 'Data Entry EA', userRoleId: undefined}
-            ]
-        },
-        Partner: {
-            SI: [
-                {userRole: 'Data Entry SI', userRoleId: undefined}
-            ],
-            'SI DOD': [
-                {userRole: 'Data Entry SI DOD', userRoleId: undefined}
-            ],
-            EA: [
-                {userRole: 'Data Entry EA', userRoleId: undefined}
-            ]
-        }
-    };
-
+function userActionsService(Restangular, $q, errorHandler, dataEntryService, schemaService) {
     var actionRolesLoaded;
+    var userActionsStore;
+    var actions;
+    var dataEntryRestrictions;
+    var dataEntryRestrictionsUserManager;
 
     var currentUser;
     var currentUserUserRoles;
 
     initialise();
+
     return {
         getActions: getActions
     };
 
     function initialise() {
-        actionRolesLoaded = Restangular.one('userRoles').withHttpConfig({cache: true}).get({
-            fields: 'id,name',
-            paging: false
-        }).then(function (response) {
-            var userRoles = response.userRoles;
+        actionRolesLoaded = schemaService.store.get('User Actions').then(function (userActionsStore_) {
+            userActionsStore = userActionsStore_;
 
-            actions.forEach(function (action) {
-                action.userRoleId = userRoles.reduce(function (current, value) {
-                    if (value.name === action.userRole) {
-                        return value.id;
-                    }
-                    return current;
-                }, action.userRoleId);
-            });
+            var roles = _.indexBy(userActionsStore.roles, 'name');
+            var mapRoles = function (context) {
+                if (Array.isArray(context)) {
+                    context.forEach(function (name, index) { context[index] = roles[name]; });
+                }
+                else if (typeof context === 'object') {
+                    Object.keys(context).forEach(function (property) { mapRoles(context[property]); });
+                }
+            };
 
-            addUserRolesForDataEntry(userRoles);
+            mapRoles(userActionsStore.dataEntryRestrictions);
+
+            actions = userActionsStore.getActionRoles();
+            dataEntryRestrictions = userActionsStore.dataEntryRestrictions.normal;
+            dataEntryRestrictionsUserManager = userActionsStore.dataEntryRestrictions.manager;
 
         }, errorHandler.errorFn('Failed to load user roles for actions'));
     }
 
     function getActions() {
-        return $q.all([actionRolesLoaded, currentUserService.getCurrentUser()])
+        return $q.all([actionRolesLoaded, schemaService.store.get('Current User')])
             .then(function (responses) {
                 currentUser = responses[1];
                 currentUserUserRoles = (currentUser && currentUser.userCredentials.userRoles) || [];
-                actions = actions;
 
-                return {
+                var api = {
                     actions: actions,
                     dataEntryRestrictions: dataEntryRestrictions,
                     dataEntryRestrictionsUserManager: dataEntryRestrictionsUserManager,
                     getDataEntryRestrictionDataGroups: getDataEntryRestrictionDataGroups,
+                    hasManageUsersAction: hasManageUsersAction,
                     getActionsForUserType: getActionsForUserType,
                     getActionsForUser: getActionsForUser,
                     getUserRolesForUser: getUserRolesForUser,
                     combineSelectedUserRolesWithExisting: combineSelectedUserRolesWithExisting,
                     filterActionsForCurrentUser: filterActionsForCurrentUser,
-                    getUserManagerDataEntryRoles: getUserManagerDataEntryRoles
+                    getUserManagerDataEntryRoles: getUserManagerDataEntryRoles,
+                    isDataEntryApplicableToUser: isDataEntryApplicableToUser,
+                    getDataStreamKey: getDataStreamKey
                 };
+
+                dataEntryService.userActions = api;
+
+                return api;
             });
     }
 
@@ -170,62 +74,28 @@ function userActionsService(Restangular, $q, userTypesService,
         }
 
         return _.filter(actions, function (action) {
-            return _.filter(currentUserUserRoles, function (userRole) {
+            return action.default === true || _.filter(currentUserUserRoles, function (userRole) {
                 return action.userRoleId === userRole.id;
             }).length;
         });
     }
 
-    function addUserRolesForDataEntry(userRoles) {
-        Object.keys(dataEntryRestrictions).forEach(function (userType) {
-            Object.keys(dataEntryRestrictions[userType]).forEach(matchUserRolesWithDataGroups(userRoles, userType, dataEntryRestrictions));
-        });
-
-        Object.keys(dataEntryRestrictionsUserManager).forEach(function (userType) {
-            Object.keys(dataEntryRestrictionsUserManager[userType]).forEach(matchUserRolesWithDataGroups(userRoles, userType, dataEntryRestrictionsUserManager));
-        });
-
-        function matchUserRolesWithDataGroups(userRoles, userType, dataEntryRestrictions) {
-            return function (dataStream) {
-                userRoles.forEach(function (userRole) {
-                    var dataStreamRoleList = dataEntryRestrictions[userType][dataStream];
-
-                    dataStreamRoleList.forEach(function (dataStreamRole) {
-                        if (userRole && userRole.name === dataStreamRole.userRole) {
-                            dataStreamRole.userRoleId = userRole.id;
-                        }
-                    });
-                });
-            };
-        }
-    }
-
-    function getAvailableActionsForUserType(userType) {
-        if (typeof userType === 'string') {
-            userType = userType.toLowerCase();
-        }
-
-        switch (userType) {
-            case 'agency':
-                return availableAgencyActions;
-            case 'partner':
-                return availablePartnerActions;
-            case 'inter-agency':
-                return availableInterAgencyActions;
-        }
-        return [];
+    function hasManageUsersAction(userType) {
+        var availableActions = userActionsStore.actions[getPreferredNameFormat(userType)] || [];
+        return availableActions.indexOf('Manage users') !== -1;
     }
 
     function getActionsForUserType(userType) {
-        var availableActions = getAvailableActionsForUserType(userType);
+        var availableActions = userActionsStore.actions[getPreferredNameFormat(userType)] || [];
 
         return actions.filter(function (action) {
-            return action.userRoleId && (availableActions.indexOf(action.name) >= 0);
+            return !action.userGroupRestriction && action.userRoleId && (availableActions.indexOf(action.name) >= 0);
         });
     }
 
     function getActionsForUser(user) {
-        var actions = getActionsForUserType(userTypesService.getUserType(user));
+        var userType = schemaService.store.get('User Types', true).fromUser(user);
+        var actions = getActionsForUserType(userType);
         var userRoles = (user && user.userCredentials && user.userCredentials.userRoles) || [];
         var userRoleIds = userRoles.map(pick('id'));
 
@@ -331,9 +201,7 @@ function userActionsService(Restangular, $q, userTypesService,
 
     function getDataEntryRestrictionDataGroups(userType) {
         var userTypeToCheck = getPreferredNameFormat(userType);
-        if (!userTypeToCheck || !dataEntryRestrictions[userTypeToCheck]) { return []; }
-
-        return Object.keys(dataEntryRestrictions[userTypeToCheck]);
+        return Object.keys(dataEntryRestrictions[userTypeToCheck] || {});
     }
 
     function getPreferredNameFormat(userType) {
@@ -345,17 +213,18 @@ function userActionsService(Restangular, $q, userTypesService,
     }
 
     function getUserManagerDataEntryRoles(userType, userEntity) {
-        return _.chain(dataEntryRestrictionsUserManager[userType])
-            .values()
-            .flatten()
-            .filter('userRoleId')
-            // FIXME: Refactor this out as it kind of a hack.
+        return _.chain(dataEntryRestrictionsUserManager[userType]).values().flatten()
             .filter(function (userRole) {
-                if (userEntity && ((userRole.userRole === 'Data Entry SI DOD' && userEntity.dodEntry === false) || (userRole.userRole === 'Data Entry SI' && userEntity.normalEntry === false))) {
-                    return false;
-                }
-                return true;
+                return userActionsStore.isRoleApplicableToUser(userRole, userEntity);
             })
             .value();
+    }
+
+    function isDataEntryApplicableToUser(dataEntryName, userEntity) {
+        return userActionsStore.isDataEntryApplicableToUser(dataEntryName, userEntity);
+    }
+
+    function getDataStreamKey(streamName) {
+        return userActionsStore.getDataStreamKey(streamName);
     }
 }
