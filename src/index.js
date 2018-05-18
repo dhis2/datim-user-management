@@ -10,7 +10,7 @@ require('../vendor/angular-ui-utils/validate.js');
 require('../vendor/angular-translate/angular-translate.js');
 require('../vendor/angular-translate-loader-static-files/angular-translate-loader-static-files.js');
 require('../vendor/restangular/dist/restangular.js');
-window.FileSaver = require('../vendor/file-saver/FileSaver.js');
+window.FileSaver = require('../vendor/file-saver.js/FileSaver.js');
 
 require('./utils.js');
 require('./ngBootstrapper.js');

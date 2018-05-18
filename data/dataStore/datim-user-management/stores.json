@@ -70,9 +70,11 @@
     }
 }, {
     "name": "User Actions",
+    "comment": "Checkboxes to make available in 2.27",
     "type": "static",
     "requires": [ "User Roles" ],
     "config": {
+        "comment": "roles are the checkboxes and actions are what Type gets which checkbox",
         "roles": [
             { "name": "Read Data", "userRole": "Read Only", "default": true },
             { "name": "Accept data", "userRole": "Data Accepter" },
