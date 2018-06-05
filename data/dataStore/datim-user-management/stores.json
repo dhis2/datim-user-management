@@ -98,7 +98,6 @@
             "normal": {
                 "Agency": {
                     "SIMS": [ "Data Entry SIMS" ],
-                    "SIMS Key Populations": [ "Data Entry SIMS Key Populations" ]
                 },
                 "Inter-Agency": {
                     "SI": [ "Data Entry SI Country Team", "Tracker", "Data Deduplication" ]
@@ -114,14 +113,12 @@
                     "SI": [ "Data Entry SI" ],
                     "SI DOD": [ "Data Entry SI DOD" ],
                     "SIMS": [ "Data Entry SIMS" ],
-                    "SIMS Key Populations": [ "Data Entry SIMS Key Populations" ],
                     "EA": [ "Data Entry EA" ]
                 },
                 "Inter-Agency": {
                     "SI": [ "Data Entry SI Country Team", "Tracker", "Data Deduplication", "Data Entry SI" ],
                     "SI DOD": [ "Data Entry SI DOD" ],
                     "SIMS": [ "Data Entry SIMS" ],
-                    "SIMS Key Populations": [ "Data Entry SIMS Key Populations" ],
                     "EA": [ "Data Entry EA" ]
                 },
                 "Partner": {
@@ -157,7 +154,7 @@
     "comment": "AKA Data Streams",
     "type": "static",
     "config": [
-        { "name": "PRIME", "userTypes": [ "Global", "Agency", "Inter-Agency", "Partner" ] },
+        { "name": "PRIME", "userTypes": [ "Global", "Agency", "Partner" ] },
         { "name": "PRIME Country Team", "userTypes": [ "Global", "Inter-Agency" ] },
         { "name": "Expenditure", "userTypes": [ "Global", "Agency", "Inter-Agency", "Partner" ] },
         { "name": "SIMS", "userTypes": [ "Global", "Agency", "Inter-Agency" ] },
