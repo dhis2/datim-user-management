@@ -49,8 +49,8 @@ gulp watch
 ```
 
 ### Building the project
-The gulp file contains two different build tasks `build` and `build-prod`.
-`build` builds the project into the build directory within the root of the project. `build-prod` does exactly the same but also zips the contents of the build folder into a zip file called `user-maintenance.zip`. This zipfile can be used to install the app into DHIS2.
+The gulp file contains two different build tasks `gulp build` and `gulp build-prod`.
+`gulp build` builds the project into the build directory within the root of the project. `gulp build-prod` does exactly the same but also zips the contents of the build folder into a zip file called `user-maintenance.zip`. This zipfile can be used to install the app into DHIS2.
 
 #### Installing the app into DHIS
 How to install the app into dhis can be found at the following url https://www.dhis2.org/doc/snapshot/en/developer/html/ch02s04.html.
