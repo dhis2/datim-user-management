@@ -33,6 +33,7 @@
     }
 }, {
     "name": "DATIM User Groups",
+    "comment": "Get all user groups with (DATIM) in their name",
     "config": {
         "datamodel": "userGroups",
         "get": {
@@ -43,6 +44,7 @@
     "filter": "_.sortBy(this.filter(function (userGroup) { return userGroup.name.match(/\\(DATIM\\)$/); }), 'name')"
 }, {
     "name": "User Roles",
+    "comment": "Get all the user roles in the system and provide a function to grab a particular one",
     "config": {
         "datamodel": "userRoles"
     },
@@ -70,32 +72,27 @@
     }
 }, {
     "name": "User Actions",
-    "comment": "Checkboxes to make available in 2.27",
+    "comment": "Checkboxes for 2.29 users",
     "type": "static",
     "requires": [ "User Roles" ],
     "config": {
         "comment": "roles are the checkboxes and actions are what Type gets which checkbox",
         "roles": [
             { "name": "Read Data", "userRole": "Read Only", "default": true },
-            { "name": "Accept data", "userRole": "Data Accepter" },
-            { "name": "Submit data", "userRole": "Data Submitter" },
-            { "name": "Manage users", "userRole": "User Administrator", "userGroupRestriction": true },
+            { "name": "Approvals: Accept Data", "userRole": "Data Accepter" },
+            { "name": "Approvals: Submit Data", "userRole": "Data Submitter" },
             { "name": "View unapproved data", "userRole": "Unapproved Data Viewer", "default": true },
-            { "name": "Data Deduplication", "userRole": "Data Deduplication" },
-            { "name": "Data Entry EA", "userRole": "Data Entry EA" },
-            { "name": "Data Entry SI", "userRole": "Data Entry SI", "userEntityRequires": "normalEntry" },
-            { "name": "Data Entry SI Country Team", "userRole": "Data Entry SI Country Team" },
-            { "name": "Data Entry SI DOD", "userRole": "Data Entry SI DOD", "userEntityRequires": "dodEntry" },
-            { "name": "Data Entry SIMS", "userRole": "Data Entry SIMS" },
-            { "name": "Data Entry SIMS Key Populations", "userRole": "Data Entry SIMS Key Populations" },
+            { "name": "Manage users", "userRole": "User Administrator", "userGroupRestriction": true },
+            { "name": "Deduplication", "userRole": "Data Deduplication" },
             { "name": "Tracker", "userRole": "Tracker" }
         ],
         "actions": {
-            "Global": [ "Read Data", "Accept data", "Submit data", "Manage users" ],
-            "Agency": [ "Read Data", "View unapproved data", "Accept data", "Submit data", "Manage users" ],
-            "Inter-Agency": [ "Read Data", "Accept data", "Submit data", "Manage users" ],
-            "Partner": [ "Read Data", "Submit data", "Manage users" ],
-            "Moh": [ "Read Data", "Manage users" ]
+            "Partner": [ "Manage users", "Approvals: Submit Data" ],
+            "PartnerDoD": [ "Manage users", "Approvals: Submit Data" ],
+            "Moh": [ "Manage users" ],
+            "Agency": [ "Manage users", "Approvals: Accept Data", "Approvals: Submit Data", "View Unapproved Data" ],
+            "Inter-Agency": [ "Manage users", "Approvals: Accept Data", "Approvals: Submit Data", "Deduplication" ],
+            "Global": [ "Manage users" ]
         },
         "dataEntryRestrictions": {
             "normal": {
@@ -157,12 +154,14 @@
     ]
 }, {
     "name": "Data Groups Definition",
+    "comment": "AKA Data Streams",
     "type": "static",
     "config": [
-        { "name": "SI", "userTypes": [ "Agency", "Inter-Agency", "Partner" ] },
-        { "name": "EA", "userTypes": [ "Agency", "Inter-Agency", "Partner" ] },
-        { "name": "SIMS", "userTypes": [ "Agency", "Inter-Agency", "Partner" ] },
-        { "name": "SIMS Key Populations", "userTypes": [ "Agency", "Inter-Agency", "Partner" ] },
+        { "name": "PRIME", "userTypes": [ "Global", "Agency", "Inter-Agency", "Partner" ] },
+        { "name": "PRIME Country Team", "userTypes": [ "Global", "Inter-Agency" ] },
+        { "name": "Expenditure", "userTypes": [ "Global", "Agency", "Inter-Agency", "Partner" ] },
+        { "name": "SIMS", "userTypes": [ "Global", "Agency", "Inter-Agency" ] },
+        { "name": "SaS", "userTypes": [ "Global" ] },
         { "name": "MOH", "userTypes": [ "Agency", "Inter-Agency", "MOH" ] }
     ],
     "extend": {
@@ -206,7 +205,7 @@
         },
         "isEntryForUser": {
             "args": [ "dataGroup", "user" ],
-            "fn": "_.difference(_.pluck(dataGroup.userRoles || [], 'name'), _.pluck(user.userCredentials.userRoles || [], 'name')).length === 0"
+            "fn": "dataGroup && dataGroup.userRoles && dataGroup.userRoles.length && _.difference(_.pluck(dataGroup.userRoles || [], 'name'), _.pluck(user.userCredentials.userRoles || [], 'name')).length === 0"
         },
         "extendFromUser": {
             "args": [ "dataGroup", "user" ],
@@ -229,6 +228,7 @@
     ]
 }, {
     "name": "Organisation Units at Level",
+    "comment" :"Get all the OUs at a given level",
     "type": "dynamic",
     "args": [ "level" ],
     "config": {
@@ -371,6 +371,7 @@
     }
 }, {
     "name": "Interagency Groups",
+    "comment": "Load groups given an OU: OU __ Country Teams, OU __ user administrators, OU __ all mechanisms",
     "type": "dynamic",
     "args": [ "organisationUnit" ],
     "preflight": "organisationUnit && !!organisationUnit.name",
@@ -398,6 +399,7 @@
     }]
 }, {
     "name": "Category Dimension Constraint",
+    "comment": "Get all first Funding Mechanism category",
     "config": {
         "datamodel": "categories",
         "get": {
@@ -407,11 +409,37 @@
     }
 }, {
     "name": "Global User Groups",
+    "comment": "Get the 'Global' user groups",
     "config": {
+      "datamodel": "userGroups",
+      "get": {
+        "filter": "name:in:[Global Users,Global User Administrators,Global all mechanisms]"
+      },
+      "filter": "this.reduce(function (obj, ug) { var key = (ug.name === 'Global Users' ? 'userUserGroup' : (ug.name === 'Global User Administrators' ? 'userAdminUserGroup' : 'mechUserGroup')); obj[key] = ug; return obj; }, {})"
+    }
+}, {
+    "name": "MOH Groups",
+    "type": "dynamic",
+    "args": [
+      "organisationUnit"
+    ],
+    "preflight": "organisationUnit && !!organisationUnit.name",
+    "config": [
+      {
+        "name": "userUserGroup",
         "datamodel": "userGroups",
         "get": {
-            "filter": "name:in:[Global Users,Global User Administrators,Global all mechanisms]"
+            "filter": "name:eq:OU ${organisationUnit.name} MOH Users"
         },
-        "filter": "this.reduce(function (obj, ug) { var key = (ug.name === 'Global Users' ? 'userUserGroup' : (ug.name === 'Global User Administrators' ? 'userAdminUserGroup' : 'mechUserGroup')); obj[key] = ug; return obj; }, {})"
-    }
+        "filter": "this[0]"
+      },
+      {
+        "name": "userAdminUserGroup",
+        "datamodel": "userGroups",
+        "get": {
+          "filter": "name:eq:OU ${organisationUnit.name} MOH User administrators"
+        },
+        "filter": "this[0]"
+      }
+    ]
 }]

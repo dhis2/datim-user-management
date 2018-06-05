@@ -13067,7 +13067,7 @@ h2.sub-title {
   margin: 0 auto;
   margin-top: 75px;
   max-width: 1200px;
-  width: 60%;
+  padding: 0 5em;
 }
 
 /* line 51, ../app/app.sass */
@@ -13317,6 +13317,13 @@ legend {
 .user-type-selection input[type="radio"] {
   visibility: hidden;
   width: 1px;
+}
+
+.stream {}
+
+.stream .streamname {
+  display: inline-block;
+  min-width: 10em;
 }
 
 /**

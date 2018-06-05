@@ -3,7 +3,7 @@
 </script>
 <form name="userForm">
     <div class="form-controls-wrap select-user-type" ng-controller="userTypeController as userType">
-        <organisation-unit-select on-select="addUser.changeOrgUnit($item, $model)" ng-if="addUser.isGlobalUser"></organisation-unit-select>
+      <organisation-unit-select on-select="addUser.changeOrgUnit($item, $model)" ng-if="addUser.isGlobalUser"></organisation-unit-select>
         <select-usertype user="user" user-types="userType.userTypes"></select-usertype>
         <agency-select active-org-unit="activeOrgUnit" user="user" ng-if="userType.isAgency()"></agency-select>
         <partner-select active-org-unit="activeOrgUnit" user="user" ng-if="userType.isPartner()"></partner-select>
@@ -34,15 +34,36 @@
             <fieldset name="Data streams">
                 <legend>Data streams<i class="fa fa-check valid-icon" ng-show="addUser.validateDataGroups()"></i></legend>
                 <ul class="checkbox-group">
-                    <li ng-repeat="(name, value) in user.dataGroups">
+                    <li ng-repeat="(name, value) in user.dataGroups" class="stream">
+                        <span class="streamname">{{::name}}</span>
+
                         <input ui-validate-watch="'addUser.validateDataGroups()'"
                                ui-validate="{ oneSelected: 'addUser.validateDataGroups()'}"
-                               id="dataStream[{{::name}}]"
+                               id="dataStream[{{::name}}]noaccess"
                                name="dataStream[{{::name}}]"
-                               ng-model="user.dataGroups[name].access"
-                               ng-disabled="addUser.hasDataEntryEnabled(name) || addUser.isUserManager"
-                               type="checkbox">
-                        <label for="dataStream[{{::name}}]" ng-bind="name" translate></label>
+                               ng-model="user.dataGroups[name].noaccess"
+                               type="radio"
+                               value="noaccess">
+                        <label for="dataStream[{{::name}}]noaccess">No Access</label>
+
+                        <input ui-validate-watch="'addUser.validateDataGroups()'"
+                                ui-validate="{ oneSelected: 'addUser.validateDataGroups()'}"
+                                id="dataStream[{{::name}}]access"
+                                name="dataStream[{{::name}}]"
+                                ng-model="user.dataGroups[name].access"
+                                type="radio"
+                                value="access">
+                        <label for="dataStream[{{::name}}]view">View Data</label>
+
+                        <input ui-validate-watch="'addUser.validateDataGroups()'"
+                                ui-validate="{ oneSelected: 'addUser.validateDataGroups()'}"
+                                id="dataStream[{{::name}}]edit"
+                                name="dataStream[{{::name}}]"
+                                ng-model="user.dataGroups[name].enter"
+                                type="radio"
+                                value="enter">
+                        <label for="dataStream[{{::name}}]enter">Enter Data</label>
+
                     </li>
                 </ul>
             </fieldset>
