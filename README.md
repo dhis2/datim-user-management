@@ -1,13 +1,13 @@
-#PEPFAR User management app
+# PEPFAR User management app
 [![Build Status](https://travis-ci.org/dhis2/user-management-pepfar.svg)](https://travis-ci.org/dhis2/user-management-pepfar)
 [![Coverage Status](https://img.shields.io/coveralls/dhis2/user-management-pepfar.svg)](https://coveralls.io/r/dhis2/user-management-pepfar)
 [![Code Climate](https://codeclimate.com/github/dhis2/user-management-pepfar/badges/gpa.svg)](https://codeclimate.com/github/dhis2/user-management-pepfar)
 
-####Dependency statuses
+#### Dependency statuses
 [![Dependency Status](https://www.versioneye.com/user/projects/54595f4b2b4804e10b0000c1/badge.svg?style=flat)](https://www.versioneye.com/user/projects/54595f4b2b4804e10b0000c1)
 [![Dependency Status](https://www.versioneye.com/user/projects/54595fc12b48049ecc00004e/badge.svg?style=flat)](https://www.versioneye.com/user/projects/54595fc12b48049ecc00004e)
 
-####The app uses the following depencencies
+#### The app uses the following depencencies
 To get more familiar with the techniques we are using in this project please see the following websites.
 + angular-ui-router (ui.router) https://github.com/angular-ui/ui-router
   - Used instead of ng-route for routing using states
@@ -18,7 +18,7 @@ To get more familiar with the techniques we are using in this project please see
 + angular-bootstrap (ui.bootstrap) https://github.com/angular-ui/bootstrap
 + angular-ui-select (ui.select) https://github.com/angular-ui/ui-select
 
-##Getting started
+## Getting started
 
 ### How to get started
 
