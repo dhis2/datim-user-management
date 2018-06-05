@@ -113,9 +113,7 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
     function createUserGroupsObjectFromDataGroups(dataGroups) {
         return dataGroups.reduce(function (dataGroups, dataGroup) {
             if (dataGroup && dataGroup.name) {
-                dataGroups[dataGroup.name] = {
-                    access: false
-                };
+                dataGroups[dataGroup.name] = "noaccess";
             }
             return dataGroups;
         }, {});
@@ -256,7 +254,7 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
             notify.error('User groups for mechanism and users not found on selected entity');
             return false;
         }
-        
+
         return true;
     }
 

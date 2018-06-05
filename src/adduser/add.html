@@ -41,7 +41,7 @@
                                ui-validate="{ oneSelected: 'addUser.validateDataGroups()'}"
                                id="dataStream[{{::name}}]noaccess"
                                name="dataStream[{{::name}}]"
-                               ng-model="user.dataGroups[name].noaccess"
+                               ng-model="user.dataGroups[name]"
                                type="radio"
                                value="noaccess">
                         <label for="dataStream[{{::name}}]noaccess">No Access</label>
@@ -50,7 +50,7 @@
                                 ui-validate="{ oneSelected: 'addUser.validateDataGroups()'}"
                                 id="dataStream[{{::name}}]access"
                                 name="dataStream[{{::name}}]"
-                                ng-model="user.dataGroups[name].access"
+                                ng-model="user.dataGroups[name]"
                                 type="radio"
                                 value="access">
                         <label for="dataStream[{{::name}}]view">View Data</label>
@@ -59,7 +59,7 @@
                                 ui-validate="{ oneSelected: 'addUser.validateDataGroups()'}"
                                 id="dataStream[{{::name}}]edit"
                                 name="dataStream[{{::name}}]"
-                                ng-model="user.dataGroups[name].enter"
+                                ng-model="user.dataGroups[name]"
                                 type="radio"
                                 value="enter">
                         <label for="dataStream[{{::name}}]enter">Enter Data</label>
@@ -73,7 +73,7 @@
         </div>
         <div class="col-sm-6">
             <fieldset name="User actions">
-                <legend>User actions<i class="fa fa-check valid-icon"></i></legend>
+                <legend>Additional Actions<i class="fa fa-check valid-icon"></i></legend>
 
                 <um-data-entry
                         is-user-manager="addUser.isUserManager"
