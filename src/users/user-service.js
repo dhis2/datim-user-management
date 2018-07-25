@@ -309,6 +309,7 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
                     console.log('munging');
                     if (munge(user, munging, 'Data PRIME Country Team entry', 'Data Entry PRIME Country Team', 'yYOqiMTxAOF')) {
                         console.log('Converted Data PRIME Country Team entry user');
+//                    } else if (munge(user, munging, 'Data PRIME DoD entry', 'Data Entry PRIME DOD', 'YVae1hYBA0q')) {
                     } else if (munge(user, munging, 'Data PRIME DoD entry', 'Data Entry PRIME DOD', 'MvL2QQbjryY')) {
                         console.log('Converted Data PRIME DoD entry user');
                     } else if (munge(user, munging, 'Data PRIME entry', false, false)) {
