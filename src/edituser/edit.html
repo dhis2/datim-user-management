@@ -103,7 +103,7 @@
             </div>
 
             <div class="row form-controls-wrap">
-                <button class="btn btn-primary add-user-button" ng-class="{ 'processing': editUser.isProcessingEditUser }" ng-disabled="!editForm.$valid || editUser.isProcessingEditUser" ng-click="editUser.editUser()">
+                <button class="btn btn-primary add-user-button" ng-class="{ 'processing': editUser.isProcessingEditUser }" ng-disabled="editUser.isProcessingEditUser" ng-click="editUser.editUser()">
                     <i class="fa fa-circle-o-notch fa-spin"></i>
                     <span>Save changes</span>
                 </button>
