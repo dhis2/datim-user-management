@@ -134,10 +134,6 @@
           "userRole": "Data Deduplication"
         },
         {
-          "name": "Data Entry EA",
-          "userRole": "Data Entry EA"
-        },
-        {
           "name": "Data Entry PRIME",
           "userRole": "Data Entry Aggregate",
           "userEntityRequires": "normalEntry"
@@ -150,14 +146,6 @@
           "name": "Data Entry PRIME DOD",
           "userRole": "Data Entry PRIME DOD",
           "userEntityRequires": "dodEntry"
-        },
-        {
-          "name": "Data Entry SIMS",
-          "userRole": "Data Entry SIMS"
-        },
-        {
-          "name": "Data Entry SIMS Key Populations",
-          "userRole": "Data Entry SIMS Key Populations"
         },
         {
           "name": "Data Entry Tracker",
@@ -197,12 +185,6 @@
       "dataEntryRestrictions": {
         "normal": {
           "Agency": {
-            "SIMS": [
-              "Data Entry SIMS"
-            ],
-            "SIMS Key Populations": [
-              "Data Entry SIMS Key Populations"
-            ]
           },
           "Inter-Agency": {
             "PRIME": [
@@ -217,9 +199,6 @@
             ],
             "PRIME DOD": [
               "Data Entry PRIME DOD"
-            ],
-            "EA": [
-              "Data Entry EA"
             ]
           }
         },
@@ -230,15 +209,6 @@
             ],
             "PRIME DOD": [
               "Data Entry PRIME DOD"
-            ],
-            "SIMS": [
-              "Data Entry SIMS"
-            ],
-            "SIMS Key Populations": [
-              "Data Entry SIMS Key Populations"
-            ],
-            "EA": [
-              "Data Entry EA"
             ]
           },
           "Inter-Agency": {
@@ -249,15 +219,6 @@
             ],
             "PRIME DOD": [
               "Data Entry PRIME DOD"
-            ],
-            "SIMS": [
-              "Data Entry SIMS"
-            ],
-            "SIMS Key Populations": [
-              "Data Entry SIMS Key Populations"
-            ],
-            "EA": [
-              "Data Entry EA"
             ]
           },
           "Partner": {
@@ -266,9 +227,6 @@
             ],
             "PRIME DOD": [
               "Data Entry PRIME DOD"
-            ],
-            "EA": [
-              "Data Entry EA"
             ]
           }
         }
@@ -309,30 +267,6 @@
     "config": [
       {
         "name": "PRIME",
-        "userTypes": [
-          "Agency",
-          "Inter-Agency",
-          "Partner"
-        ]
-      },
-      {
-        "name": "EA",
-        "userTypes": [
-          "Agency",
-          "Inter-Agency",
-          "Partner"
-        ]
-      },
-      {
-        "name": "SIMS",
-        "userTypes": [
-          "Agency",
-          "Inter-Agency",
-          "Partner"
-        ]
-      },
-      {
-        "name": "SIMS Key Populations",
         "userTypes": [
           "Agency",
           "Inter-Agency",
