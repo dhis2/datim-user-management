@@ -87,7 +87,6 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
         var actions = getActionsForGroups(user, selectedDataGroups, allActions);
         //Add the usergroups to the invite object
         selectedDataGroups.forEach(function (dataGroup) {
-
             inviteObject.userGroups = inviteObject.userGroups.concat(dataGroup.userGroups.map(function (userGroup) {
                 return {id: userGroup.id};
             }));
@@ -174,7 +173,10 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
             return actions.concat(current);
         }, actions)
         .filter(function (action) {
-            return selectedActions.indexOf(action.name) >= 0;
+            if (((selectedActions.indexOf(action.name) >= 0) || action.default === true)) {
+                return true;
+            }
+            return false;
         });
     }
 
