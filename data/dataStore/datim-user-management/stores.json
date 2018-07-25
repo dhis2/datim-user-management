@@ -138,17 +138,17 @@
           "userRole": "Data Entry EA"
         },
         {
-          "name": "Data Entry SI",
-          "userRole": "Data Entry SI",
+          "name": "Data Entry PRIME",
+          "userRole": "Data Entry Aggregate",
           "userEntityRequires": "normalEntry"
         },
         {
-          "name": "Data Entry SI Country Team",
-          "userRole": "Data Entry SI Country Team"
+          "name": "Data Entry PRIME Country Team",
+          "userRole": "Data Entry PRIME Country Team"
         },
         {
-          "name": "Data Entry SI DOD",
-          "userRole": "Data Entry SI DOD",
+          "name": "Data Entry PRIME DOD",
+          "userRole": "Data Entry PRIME DOD",
           "userEntityRequires": "dodEntry"
         },
         {
@@ -160,8 +160,8 @@
           "userRole": "Data Entry SIMS Key Populations"
         },
         {
-          "name": "Tracker",
-          "userRole": "Tracker"
+          "name": "Data Entry Tracker",
+          "userRole": "Data Entry Tracker"
         }
       ],
       "actions": {
@@ -205,18 +205,18 @@
             ]
           },
           "Inter-Agency": {
-            "SI": [
-              "Data Entry SI Country Team",
-              "Tracker",
-              "Data Deduplication"
+            "PRIME": [
+              "Data Entry Tracker",
+              "Data Deduplication",
+              "Data Entry PRIME"
             ]
           },
           "Partner": {
-            "SI": [
-              "Data Entry SI"
+            "PRIME": [
+              "Data Entry PRIME"
             ],
-            "SI DOD": [
-              "Data Entry SI DOD"
+            "PRIME DOD": [
+              "Data Entry PRIME DOD"
             ],
             "EA": [
               "Data Entry EA"
@@ -225,11 +225,11 @@
         },
         "manager": {
           "Agency": {
-            "SI": [
-              "Data Entry SI"
+            "PRIME": [
+              "Data Entry PRIME"
             ],
-            "SI DOD": [
-              "Data Entry SI DOD"
+            "PRIME DOD": [
+              "Data Entry PRIME DOD"
             ],
             "SIMS": [
               "Data Entry SIMS"
@@ -242,14 +242,13 @@
             ]
           },
           "Inter-Agency": {
-            "SI": [
-              "Data Entry SI Country Team",
-              "Tracker",
+            "PRIME": [
+              "Data Entry Tracker",
               "Data Deduplication",
-              "Data Entry SI"
+              "Data Entry PRIME"
             ],
-            "SI DOD": [
-              "Data Entry SI DOD"
+            "PRIME DOD": [
+              "Data Entry PRIME DOD"
             ],
             "SIMS": [
               "Data Entry SIMS"
@@ -262,11 +261,11 @@
             ]
           },
           "Partner": {
-            "SI": [
-              "Data Entry SI"
+            "PRIME": [
+              "Data Entry PRIME"
             ],
-            "SI DOD": [
-              "Data Entry SI DOD"
+            "PRIME DOD": [
+              "Data Entry PRIME DOD"
             ],
             "EA": [
               "Data Entry EA"
@@ -288,13 +287,13 @@
           "entryName",
           "userEntity"
         ],
-        "fn": "(entryName === 'SI DOD' && userEntity && userEntity.dodEntry) || (entryName === 'SI' && userEntity && userEntity.normalEntry) || (entryName !== 'SI' && entryName !== 'SI DOD')"
+        "fn": "(entryName === 'PRIME DOD' && userEntity && userEntity.dodEntry) || (entryName === 'PRIME' && userEntity && userEntity.normalEntry) || (entryName !== 'PRIME' && entryName !== 'PRIME DOD')"
       },
       "getDataStreamKey": {
         "args": [
           "dataEntryName"
         ],
-        "fn": "dataEntryName === 'SI DOD' ? 'SI' : dataEntryName"
+        "fn": "dataEntryName === 'PRIME DOD' ? 'PRIME' : dataEntryName"
       },
       "getActionRoles": {
         "fn": "this.roles.slice(0, 5)"
@@ -309,7 +308,7 @@
     "type": "static",
     "config": [
       {
-        "name": "SI",
+        "name": "PRIME",
         "userTypes": [
           "Agency",
           "Inter-Agency",
