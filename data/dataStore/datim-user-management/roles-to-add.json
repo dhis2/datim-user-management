@@ -1,0 +1,48 @@
+{
+  "userRoles": [
+    {
+      "name": "Data Entry PRIME",
+      "id": "hXjy7MsnbhZ",
+      "displayName": "Data Entry PRIME",
+      "publicAccess": "rw------",
+      "externalAccess": false,
+      "favorite": false,
+      "lastUpdatedBy": {
+        "id": "KxdQZCgLyCk"
+      },
+      "access": {
+        "read": true,
+        "update": true,
+        "externalize": true,
+        "delete": true,
+        "write": true,
+        "manage": true
+      },
+      "user": {
+        "id": "KxdQZCgLyCk"
+      }
+    },
+    {
+      "name": "Data Entry PRIME DOD",
+      "id": "MvL2QQbjryY",
+      "displayName": "Data Entry PRIME DOD",
+      "publicAccess": "rw------",
+      "externalAccess": false,
+      "favorite": false,
+      "lastUpdatedBy": {
+        "id": "KxdQZCgLyCk"
+      },
+      "access": {
+        "read": true,
+        "update": true,
+        "externalize": true,
+        "delete": true,
+        "write": true,
+        "manage": true
+      },
+      "user": {
+        "id": "KxdQZCgLyCk"
+      }
+    }
+  ]
+}
