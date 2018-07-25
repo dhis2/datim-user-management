@@ -1,6 +1,6 @@
 {
     "version": "1.1.9",
-    "name": "DATIM User Administration",
+    "name": "User Administration",
     "description": "User administration app for PEPFAR DATIM",
     "icons": {
         "48": "images/icons/DATIM-User-Administration.png"
