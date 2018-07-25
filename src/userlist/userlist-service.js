@@ -30,6 +30,25 @@ function userListService($q, Restangular, schemaService, paginationService, user
         return Restangular.one('users')
             .withHttpConfig({ timeout: pendingRequest.promise })
             .get(getRequestParams())
+            .then(function(user) {
+                for (var i = 0, len = user.users.length; i < len; i++) {
+                    var munging = findItem('Data PRIME access', 'c6hGi8GEZot', user.users[i].userGroups);
+                    if (munging >= 0) {
+                        console.log('munging');
+                        if (munge(user.users[i], munging, 'Data PRIME Country Team entry', 'Data Entry PRIME Country Team', 'yYOqiMTxAOF')) {
+                            console.log('Converted Data PRIME Country Team entry user');
+                        } else if (munge(user.users[i], munging, 'Data PRIME DoD entry', 'Data Entry PRIME DOD', 'MvL2QQbjryY')) {
+                            console.log('Converted Data PRIME DoD entry user');
+                        } else if (munge(user.users[i], munging, 'Data PRIME entry', false, false)) {
+                            console.log('Converted Data PRIME entry user');
+                        } else {
+                            mungeAccess(user.users[i], munging);
+                            console.log('Converted Data PRIME access user');
+                        }
+                    }
+                }
+                return user;
+            })
             .then(setPagination)
             .then(extractUsers)
             .then(bindUserGroupAccessData)
@@ -42,6 +61,41 @@ function userListService($q, Restangular, schemaService, paginationService, user
                     errorHandler.error('Unable to get the list of users from the server');
                 }
             });
+    }
+
+    function findItem(itemName, itemUid, items) {
+        for (var i = 0, len = items.length; i < len; i++) {
+            if (items[i].name === itemName || items[i].id === itemUid) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    function munge(user, i, newname, oldname, olduid) {
+        console.log('munging ' + newname + ' to ' + oldname);
+        var x = findItem(newname, false, user.userGroups);
+        if (x === -1) {
+            return false;
+        }
+        mungeAccess(user, i);
+        user.userGroups.splice(x, 1);
+        if (oldname) {
+            user.userCredentials.userRoles.push({
+                'name': oldname,
+                'id': olduid,
+                'displayName': oldname
+            });
+        }
+        return true;
+    }
+
+    function mungeAccess(user, i) {
+        var x = findItem('Data Entry Aggregate', 'k7BWFXkG6zt', user.userCredentials.userRoles);
+        if (x !== -1) {
+            user.userCredentials.userRoles[x].name = 'Data Entry PRIME';
+            user.userCredentials.userRoles[x].displayName = 'Data Entry PRIME';
+        }
     }
 
     function setPagination(response) {

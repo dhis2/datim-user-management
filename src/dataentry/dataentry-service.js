@@ -50,6 +50,9 @@ function dataEntryService() {
                 if (isApplicable) {
                     dataEntryRoles[name] = true;
                 }
+                if (name === 'PRIME') {
+                    dataEntryRoles[name] = true;
+                }
             }.bind(this));
     }
 }

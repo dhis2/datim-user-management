@@ -1,13 +1,13 @@
 {
     "version": "1.1.9",
-    "name": "User Administration",
-    "description": "User administration app for PEPFAR DATIM.",
+    "name": "DATIM User Administration",
+    "description": "User administration app for PEPFAR DATIM",
     "icons": {
-        "48": "images/icons/user-maintenance.png"
+        "48": "images/icons/DATIM-User-Administration.png"
     },
     "developer": {
         "url": "",
-        "name": "Mark Polak"
+        "name": "Mark Polak, Mike Possumato, Greg Wilson, Jen Arnesen and Ben Guaraldi"
     },
     "launch_path": "index.html?v=1.1.9",
     "default_locale": "en",
