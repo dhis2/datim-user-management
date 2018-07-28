@@ -373,11 +373,13 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
             user.userCredentials.userRoles[x].displayName = 'Data Entry Aggregate';
         }
     }
-
+    
     function findItem(itemName, itemUid, items) {
-        for (var i = 0, len = items.length; i < len; i++) {
-            if (items[i].name === itemName || items[i].id === itemUid) {
-                return i;
+        if (items !== undefined && Array.isArray(items)) {
+            for (var i = 0, len = items.length; i < len; i++) {
+                if (items[i].name === itemName || items[i].id === itemUid) {
+                    return i;
+                }
             }
         }
         return -1;
@@ -401,7 +403,7 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
 
             console.log('saving the user');
             var userToUnmunge = angular.copy(userToUpdate);
-            var unmunging = findItem('Data PRIME access', userToUnmunge.userGroups);
+            var unmunging = findItem('Data PRIME access', 'c6hGi8GEZot', userToUnmunge.userGroups);
             if (unmunging >= 0) {
                 console.log('unmunging');
                 if (unmunge(userToUnmunge, unmunging, 'Data Entry PRIME Country Team', false, 'Data PRIME Country Team entry', 'zY2t7de7Jzz')) {

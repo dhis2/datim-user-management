@@ -64,9 +64,11 @@ function userListService($q, Restangular, schemaService, paginationService, user
     }
 
     function findItem(itemName, itemUid, items) {
-        for (var i = 0, len = items.length; i < len; i++) {
-            if (items[i].name === itemName || items[i].id === itemUid) {
-                return i;
+        if (items !== undefined && Array.isArray(items)) {
+            for (var i = 0, len = items.length; i < len; i++) {
+                if (items[i].name === itemName || items[i].id === itemUid) {
+                    return i;
+                }
             }
         }
         return -1;
