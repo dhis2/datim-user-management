@@ -150,7 +150,15 @@
         {
           "name": "Data Entry Tracker",
           "userRole": "Data Entry Tracker"
-        }
+        },
+        {
+          "name": "Data Entry ER",
+          "userRole": "Data Entry ER"
+        },
+        {
+          "name": "Data Entry SaS",
+          "userRole": "Data Entry SaS"
+        }        
       ],
       "actions": {
         "Global": [
@@ -185,12 +193,24 @@
       "dataEntryRestrictions": {
         "normal": {
           "Agency": {
+            "ER": [
+              "Data Entry ER"
+            ],
+            "SaS": [
+              "Data Entry SaS"
+            ]
           },
           "Inter-Agency": {
             "PRIME": [
               "Data Entry Tracker",
               "Data Deduplication",
               "Data Entry PRIME"
+            ],
+            "ER": [
+              "Data Entry ER"
+            ],
+            "SaS": [
+              "Data Entry SaS"
             ]
           },
           "Partner": {
@@ -199,6 +219,12 @@
             ],
             "PRIME DOD": [
               "Data Entry PRIME DOD"
+            ],
+            "ER": [
+              "Data Entry ER"
+            ],
+            "SaS": [
+              "Data Entry SaS"
             ]
           }
         },
@@ -209,6 +235,12 @@
             ],
             "PRIME DOD": [
               "Data Entry PRIME DOD"
+            ],
+            "ER": [
+              "Data Entry ER"
+            ],
+            "SaS": [
+              "Data Entry SaS"
             ]
           },
           "Inter-Agency": {
@@ -219,6 +251,12 @@
             ],
             "PRIME DOD": [
               "Data Entry PRIME DOD"
+            ],
+            "ER": [
+              "Data Entry ER"
+            ],
+            "SaS": [
+              "Data Entry SaS"
             ]
           },
           "Partner": {
@@ -227,6 +265,12 @@
             ],
             "PRIME DOD": [
               "Data Entry PRIME DOD"
+            ],
+            "ER": [
+              "Data Entry ER"
+            ],
+            "SaS": [
+              "Data Entry SaS"
             ]
           }
         }
@@ -279,6 +323,22 @@
           "Agency",
           "Inter-Agency",
           "MOH"
+        ]
+      },
+      {
+        "name": "ER",
+        "userTypes": [
+          "Agency",
+          "Inter-Agency",
+          "Partner"
+        ]
+      },
+      {
+        "name": "SaS",
+        "userTypes": [
+          "Agency",
+          "Inter-Agency",
+          "Partner"
         ]
       }
     ],

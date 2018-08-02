@@ -39,13 +39,14 @@ function userListService($q, Restangular, schemaService, paginationService, user
                             console.log('Converted Data PRIME Country Team entry user');
                         } else if (munge(user.users[i], munging, 'Data PRIME DoD entry', 'Data Entry PRIME DOD', 'MvL2QQbjryY')) {
                             console.log('Converted Data PRIME DoD entry user');
-                        } else if (munge(user.users[i], munging, 'Data PRIME entry', false, false)) {
+                        } else if (munge(user.users[i], munging, 'Data PRIME entry', 'Data Entry PRIME', 'hCofOhr3q1Q')) {
                             console.log('Converted Data PRIME entry user');
                         } else {
-                            mungeAccess(user.users[i], munging);
-                            console.log('Converted Data PRIME access user');
+                            console.log('Data PRIME access user—nothing to do');
                         }
                     }
+                    mungeMore('SaS', 'AZU9Haopetn', 'emeQ7kjx8Ve', user.users[i]);
+                    mungeMore('ER', 'XgctRYBpSiR', 'ddefz0KIAtO', user.users[i]);
                 }
                 return user;
             })
@@ -64,7 +65,7 @@ function userListService($q, Restangular, schemaService, paginationService, user
     }
 
     function findItem(itemName, itemUid, items) {
-        if (items !== undefined && Array.isArray(items)) {
+        if (Array.isArray(items)) {
             for (var i = 0, len = items.length; i < len; i++) {
                 if (items[i].name === itemName || items[i].id === itemUid) {
                     return i;
@@ -75,12 +76,10 @@ function userListService($q, Restangular, schemaService, paginationService, user
     }
 
     function munge(user, i, newname, oldname, olduid) {
-        console.log('munging ' + newname + ' to ' + oldname);
         var x = findItem(newname, false, user.userGroups);
         if (x === -1) {
             return false;
         }
-        mungeAccess(user, i);
         user.userGroups.splice(x, 1);
         if (oldname) {
             user.userCredentials.userRoles.push({
@@ -92,12 +91,18 @@ function userListService($q, Restangular, schemaService, paginationService, user
         return true;
     }
 
-    function mungeAccess(user, i) {
-        var x = findItem('Data Entry Aggregate', 'k7BWFXkG6zt', user.userCredentials.userRoles);
-        if (x !== -1) {
-            user.userCredentials.userRoles[x].name = 'Data Entry PRIME';
-            user.userCredentials.userRoles[x].displayName = 'Data Entry PRIME';
+    function mungeMore(name, entryUid, dummyUid, user) {
+        var munging = findItem('Data ' + name + ' entry', entryUid, user.userGroups);
+        if (munging === -1) {
+            return false;
         }
+        console.log('munging ' + name);
+        user.userCredentials.userRoles.push({
+            'name': 'Data Entry ' + name,
+            'id': dummyUid,
+            'displayName': 'Data Entry ' + name
+        });
+        return true;
     }
 
     function setPagination(response) {

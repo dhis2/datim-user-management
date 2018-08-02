@@ -142,10 +142,10 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
                 .then(function () {
                     if ($scope.user.locale && $scope.user.locale.code) {
                         saveUserLocale()
-                            .then(notifyUserOfSuccessfullSave)
+                            .then(notifyUserOfSuccessfulSave)
                             .catch(notifyUserOfFailedLocaleSave);
                     } else {
-                        notifyUserOfSuccessfullSave();
+                        notifyUserOfSuccessfulSave();
                     }
                 })
                 .catch(errorHandler.errorFn('Failed to save user'))
@@ -282,7 +282,7 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
             });
     }
 
-    function notifyUserOfSuccessfullSave() {
+    function notifyUserOfSuccessfulSave() {
         return notify.success('User updated');
     }
 

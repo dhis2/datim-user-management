@@ -43,6 +43,50 @@
       "user": {
         "id": "KxdQZCgLyCk"
       }
+    },
+    {
+      "name": "Data Entry SaS",
+      "id": "emeQ7kjx8Ve",
+      "displayName": "Data Entry SaS",
+      "publicAccess": "rw------",
+      "externalAccess": false,
+      "favorite": false,
+      "lastUpdatedBy": {
+        "id": "KxdQZCgLyCk"
+      },
+      "access": {
+        "read": true,
+        "update": true,
+        "externalize": true,
+        "delete": true,
+        "write": true,
+        "manage": true
+      },
+      "user": {
+        "id": "KxdQZCgLyCk"
+      }
+    },
+    {
+      "name": "Data Entry ER",
+      "id": "ddefz0KIAtO",
+      "displayName": "Data Entry ER",
+      "publicAccess": "rw------",
+      "externalAccess": false,
+      "favorite": false,
+      "lastUpdatedBy": {
+        "id": "KxdQZCgLyCk"
+      },
+      "access": {
+        "read": true,
+        "update": true,
+        "externalize": true,
+        "delete": true,
+        "write": true,
+        "manage": true
+      },
+      "user": {
+        "id": "KxdQZCgLyCk"
+      }
     }
   ]
 }
