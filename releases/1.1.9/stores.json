@@ -135,7 +135,7 @@
         },
         {
           "name": "Data Entry PRIME",
-          "userRole": "Data Entry Aggregate",
+          "userRole": "Data Entry PRIME",
           "userEntityRequires": "normalEntry"
         },
         {

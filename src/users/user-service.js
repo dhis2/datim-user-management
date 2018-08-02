@@ -112,35 +112,56 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
             }
         });
 
-        //Unmunge invite if the uid for Data PRIME access appears
-        if (user.userType !== undefined && findItem('Data PRIME access', 'c6hGi8GEZot', inviteObject.userGroups) >= 0) {
-            if (user.userType.name == 'Inter-Agency' && findItem('Data Entry Aggregate', 'k7BWFXkG6zt', inviteObject.userCredentials.userRoles) >= 0) {
-                console.log('Fixing invite for Inter-Agency user');
-                //Add Data PRIME Country Team entry user group
-                inviteObject.userGroups.push({id: 'zY2t7de7Jzz'});
-            } else if (user.userType.name == 'Partner' && findItem('Data Entry Aggregate', 'k7BWFXkG6zt', inviteObject.userCredentials.userRoles) >= 0) {
-                console.log('Fixing invite for Partner user');
-                //Add Data PRIME entry user group
-                inviteObject.userGroups.push({id: 'hCofOhr3q1Q'});
-            }
+        var x = -1;
+        var addAggregate = false;
+
+        x = findItem('Data Entry PRIME Country Team', 'pZ7VasdvIQI', inviteObject.userCredentials.userRoles);
+        if (x >= 0) {
+            console.log('Fixing invite for Inter-Agency user');
+            //Add Data PRIME Country Team entry user group and remove role
+            inviteObject.userGroups.push({id: 'zY2t7de7Jzz'});
+            inviteObject.userCredentials.userRoles.splice(x, 1);
+            addAggregate = true;
         }
 
-        var x = findItem('Data Entry SaS', 'emeQ7kjx8Ve', inviteObject.userCredentials.userRoles);
+        x = findItem('Data Entry PRIME DOD', 'MvL2QQbjryY', inviteObject.userCredentials.userRoles);
+        if (x >= 0) {
+            console.log('Fixing invite for PRIME DoD user');
+            //Add Data PRIME DoD entry user group and remove role
+            inviteObject.userGroups.push({id: 'rP0VPKQcC8y'});
+            inviteObject.userCredentials.userRoles.splice(x, 1);
+            addAggregate = true;
+        }
+
+        x = findItem('Data Entry PRIME', 'hXjy7MsnbhZ', inviteObject.userCredentials.userRoles);
+        if (x >= 0) {
+            console.log('Fixing invite for regular PRIME user');
+            //Add Data PRIME entry user group and remove role
+            inviteObject.userGroups.push({id: 'hCofOhr3q1Q'});
+            inviteObject.userCredentials.userRoles.splice(x, 1);
+            addAggregate = true;
+        }
+
+        x = findItem('Data Entry SaS', 'emeQ7kjx8Ve', inviteObject.userCredentials.userRoles);
         if (x >= 0) {
             console.log('Fixing invite for SaS');
-            //Add Data SaS entry user group
+            //Add Data SaS entry user group and remove role
             inviteObject.userGroups.push({id: 'AZU9Haopetn'});
-            //Remove Data Entry SaS
             inviteObject.userCredentials.userRoles.splice(x, 1);
+            addAggregate = true;
         }
 
-        var x = findItem('Data Entry ER', 'ddefz0KIAtO', inviteObject.userCredentials.userRoles);
+        x = findItem('Data Entry ER', 'ddefz0KIAtO', inviteObject.userCredentials.userRoles);
         if (x >= 0) {
             console.log('Fixing invite for ER');
-            //Add Data SaS entry user group
+            //Add Data SaS entry user group and remove role
             inviteObject.userGroups.push({id: 'XgctRYBpSiR'});
-            //Remove Data Entry SaS
             inviteObject.userCredentials.userRoles.splice(x, 1);
+            addAggregate = true;
+        }
+
+        if (addAggregate) {
+            inviteObject.userCredentials.userRoles.push({id: 'k7BWFXkG6zt'});
         }
 
         organisationUnits = (Array.isArray(organisationUnits) && organisationUnits) || [];
@@ -324,11 +345,11 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
             .then(function(user) {
                 var munging = findItem('Data PRIME access', 'c6hGi8GEZot', user.userGroups);
                 if (munging >= 0) {
-                    if (munge(user, munging, 'Data PRIME Country Team entry', 'Data Entry PRIME Country Team', 'yYOqiMTxAOF')) {
+                    if (munge(user, munging, 'Data PRIME Country Team entry', 'Data Entry PRIME Country Team', 'pZ7VasdvIQI')) {
                         console.log('Converted Data PRIME Country Team entry user');
                     } else if (munge(user, munging, 'Data PRIME DoD entry', 'Data Entry PRIME DOD', 'MvL2QQbjryY')) {
                         console.log('Converted Data PRIME DoD entry user');
-                    } else if (munge(user, munging, 'Data PRIME entry', 'Data Entry PRIME', 'hCofOhr3q1Q')) {
+                    } else if (munge(user, munging, 'Data PRIME entry', 'Data Entry PRIME', 'hXjy7MsnbhZ')) {
                         console.log('Converted Data PRIME entry user');
                     } else {
                         console.log('Data PRIME access user—nothing to do');
@@ -336,6 +357,7 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
                 }
                 mungeMore('SaS', 'AZU9Haopetn', 'emeQ7kjx8Ve', user);
                 mungeMore('ER', 'XgctRYBpSiR', 'ddefz0KIAtO', user);
+                mungeRemoveAggregate(user);
                 return user;
             });
     }
@@ -370,15 +392,27 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
         return true;
     }
 
+    function mungeRemoveAggregate(user) {
+        var x = findItem('Data Entry Aggregate', 'k7BWFXkG6zt', user.userCredentials.userRoles);
+        if (x === -1) {
+            return false;
+        }
+        if (findItem('User Administrator', 'KagqnetfxMr', user.userCredentials.userRoles) < 0 &&
+            findItem('Data PRIME entry', 'hCofOhr3q1Q', user.userGroups) < 0 &&
+            findItem('Data PRIME DoD entry', 'rP0VPKQcC8y', user.userGroups) < 0 &&
+            findItem('Data PRIME Country Team entry', 'zY2t7de7Jzz', user.userGroups) < 0 &&
+            findItem('Data SaS entry', 'AZU9Haopetn', user.userGroups) < 0 &&
+            findItem('Data ER entry', 'XgctRYBpSiR', user.userGroups) < 0) {
+                user.userCredentials.userRoles.splice(x, 1);
+        }
+    }
+    
     function unmunge(user, i, oldname, olduid, newname, newuid) {
         var x = findItem(oldname, olduid, user.userCredentials.userRoles);
         if (x === -1) {
             return false;
         }
-        unmungeAccess(user, i);
-        if (oldname !== 'Data Entry Aggregate') {
-            user.userCredentials.userRoles.splice(x, 1);
-        }
+        user.userCredentials.userRoles.splice(x, 1);
         if (newname) {
             user.userGroups.push({
                 'name': newname,
@@ -386,15 +420,16 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
                 'displayName': newname
             });
         }
+        unmungeAddAggregate(user);
         return true;
     }
 
-    function unmungeAccess(user, i) {
-        var x = findItem('Data Entry PRIME', 'k7BWFXkG6zt', user.userCredentials.userRoles);
-        if (x !== -1) {
-            user.userCredentials.userRoles[x].name = 'Data Entry Aggregate';
-            user.userCredentials.userRoles[x].displayName = 'Data Entry Aggregate';
-        }
+    function unmungeAddAggregate(user) {
+        user.userCredentials.userRoles.push({
+            'name': 'Data Entry Aggregate',
+            'id': 'k7BWFXkG6zt',
+            'displayName': 'Data Entry Aggregate'
+        });
     }
     
     function unmungeMore(name, entryUid, dummyUid, user) {
@@ -407,6 +442,8 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
                 'id': entryUid,
                 'displayName': 'Data ' + name + ' entry'
             });
+            // FIXME: This may need to be Tracker for SaS
+            unmungeAddAggregate(user);
         } else {
             unmunging = findItem('Data ' + name + ' entry', entryUid, user.userGroups);
             if (unmunging !== -1) {
@@ -451,11 +488,10 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
                     console.log('Unconverted Data PRIME Country Team entry user');
                 } else if (unmunge(userToUpdate, unmunging, 'Data Entry PRIME DOD', false, 'Data PRIME DoD entry', 'rP0VPKQcC8y')) {
                     console.log('Unconverted Data PRIME DoD entry user');
-                } else if (unmunge(userToUpdate, unmunging, 'Data Entry Aggregate', false, 'Data PRIME entry', 'hCofOhr3q1Q')) {
+                } else if (unmunge(userToUpdate, unmunging, 'Data Entry PRIME', false, 'Data PRIME entry', 'hCofOhr3q1Q')) {
                     console.log('Unconverted Data PRIME entry user');
                 } else {
-                    unmungeAccess(userToUpdate, unmunging);
-                    console.log('Unconverted Data PRIME access user');
+                    console.log('Data PRIME access user—nothing to do');
                 }
             }
 

@@ -34,12 +34,11 @@ function userListService($q, Restangular, schemaService, paginationService, user
                 for (var i = 0, len = user.users.length; i < len; i++) {
                     var munging = findItem('Data PRIME access', 'c6hGi8GEZot', user.users[i].userGroups);
                     if (munging >= 0) {
-                        console.log('munging');
-                        if (munge(user.users[i], munging, 'Data PRIME Country Team entry', 'Data Entry PRIME Country Team', 'yYOqiMTxAOF')) {
+                        if (munge(user.users[i], munging, 'Data PRIME Country Team entry', 'Data Entry PRIME Country Team', 'pZ7VasdvIQI')) {
                             console.log('Converted Data PRIME Country Team entry user');
                         } else if (munge(user.users[i], munging, 'Data PRIME DoD entry', 'Data Entry PRIME DOD', 'MvL2QQbjryY')) {
                             console.log('Converted Data PRIME DoD entry user');
-                        } else if (munge(user.users[i], munging, 'Data PRIME entry', 'Data Entry PRIME', 'hCofOhr3q1Q')) {
+                        } else if (munge(user.users[i], munging, 'Data PRIME entry', 'Data Entry PRIME', 'hXjy7MsnbhZ')) {
                             console.log('Converted Data PRIME entry user');
                         } else {
                             console.log('Data PRIME access user—nothing to do');

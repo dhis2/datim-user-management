@@ -314,7 +314,11 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
 
     function addUserManagerUserRoles() {
         var adminActions = _.map(getUserManagerRoles(), function (userAction) {
-            return {id: userAction.userRoleId};
+            if (!["hXjy7MsnbhZ", "MvL2QQbjryY", "pZ7VasdvIQI", "emeQ7kjx8Ve", "ddefz0KIAtO"].includes(userAction.userRoleID)) {
+                return {id: userAction.userRoleId};
+            } else {
+                return {id: 'b2uHwX9YLhu'}; // Don't add the dummy roles; add Read Only instead
+            }
         });
 
         vm.userInviteObject.userCredentials.userRoles = vm.userInviteObject.userCredentials.userRoles.concat(adminActions);
@@ -324,7 +328,15 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
         var dataAccessGroups = _.map(getUserManagerDataAccessGroups(), _.partialRight(_.pick, ['id']));
         vm.userInviteObject.userGroups = vm.userInviteObject.userGroups.concat(dataAccessGroups);
 
-        var dataEntryRoles = _.map(getUserManagerDataEntryRoles(), _.compose(renameProperty('userRoleId', 'id'), _.partialRight(_.pick, ['userRoleId'])));
+        var dataEntryRoles = _.map(getUserManagerDataEntryRoles(), function (userAction) {
+            if (!["hXjy7MsnbhZ", "MvL2QQbjryY", "pZ7VasdvIQI", "emeQ7kjx8Ve", "ddefz0KIAtO"].includes(userAction.userRoleId)) {
+                return {id: userAction.userRoleId};
+            } else {
+                return {id: 'b2uHwX9YLhu'}; // Don't add the dummy roles; add Read Only instead
+            }
+        });
+
+
         vm.userInviteObject.userCredentials.userRoles = vm.userInviteObject.userCredentials.userRoles.concat(dataEntryRoles);
     }
 

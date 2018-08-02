@@ -45,6 +45,28 @@
       }
     },
     {
+      "name": "Data Entry PRIME Country Team",
+      "id": "pZ7VasdvIQI",
+      "displayName": "Data Entry PRIME Country Team",
+      "publicAccess": "rw------",
+      "externalAccess": false,
+      "favorite": false,
+      "lastUpdatedBy": {
+        "id": "KxdQZCgLyCk"
+      },
+      "access": {
+        "read": true,
+        "update": true,
+        "externalize": true,
+        "delete": true,
+        "write": true,
+        "manage": true
+      },
+      "user": {
+        "id": "KxdQZCgLyCk"
+      }
+    },
+    {
       "name": "Data Entry SaS",
       "id": "emeQ7kjx8Ve",
       "displayName": "Data Entry SaS",
