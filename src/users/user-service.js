@@ -148,13 +148,12 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
             //Add Data SaS entry user group and remove role
             inviteObject.userGroups.push({id: 'AZU9Haopetn'});
             inviteObject.userCredentials.userRoles.splice(x, 1);
-            addAggregate = true;
         }
 
         x = findItem('Data Entry ER', 'ddefz0KIAtO', inviteObject.userCredentials.userRoles);
         if (x >= 0) {
             console.log('Fixing invite for ER');
-            //Add Data SaS entry user group and remove role
+            //Add Data ER entry user group and remove role
             inviteObject.userGroups.push({id: 'XgctRYBpSiR'});
             inviteObject.userCredentials.userRoles.splice(x, 1);
             addAggregate = true;
@@ -162,6 +161,10 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
 
         if (addAggregate) {
             inviteObject.userCredentials.userRoles.push({id: 'k7BWFXkG6zt'});
+        }
+
+        if (findItem('Data SaS access', 'CwFniyubXbx', inviteObject.userGroups) >= 0) {
+            inviteObject.userCredentials.userRoles.push({id: 'NsYYVxduOTM'});
         }
 
         organisationUnits = (Array.isArray(organisationUnits) && organisationUnits) || [];

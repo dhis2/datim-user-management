@@ -205,12 +205,6 @@
               "Data Entry Tracker",
               "Data Deduplication",
               "Data Entry PRIME"
-            ],
-            "ER": [
-              "Data Entry ER"
-            ],
-            "SaS": [
-              "Data Entry SaS"
             ]
           },
           "Partner": {
@@ -222,9 +216,6 @@
             ],
             "ER": [
               "Data Entry ER"
-            ],
-            "SaS": [
-              "Data Entry SaS"
             ]
           }
         },
@@ -252,9 +243,6 @@
             "PRIME DOD": [
               "Data Entry PRIME DOD"
             ],
-            "ER": [
-              "Data Entry ER"
-            ],
             "SaS": [
               "Data Entry SaS"
             ]
@@ -268,9 +256,6 @@
             ],
             "ER": [
               "Data Entry ER"
-            ],
-            "SaS": [
-              "Data Entry SaS"
             ]
           }
         }
@@ -329,7 +314,6 @@
         "name": "ER",
         "userTypes": [
           "Agency",
-          "Inter-Agency",
           "Partner"
         ]
       },
@@ -337,8 +321,14 @@
         "name": "SaS",
         "userTypes": [
           "Agency",
-          "Inter-Agency",
-          "Partner"
+          "Inter-Agency"
+        ]
+      },
+      {
+        "name": "SIMS",
+        "userTypes": [
+          "Agency",
+          "Inter-Agency"
         ]
       }
     ],
