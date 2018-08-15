@@ -314,7 +314,7 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
 
     function addUserManagerUserRoles() {
         var adminActions = _.map(getUserManagerRoles(), function (userAction) {
-            if (!["hXjy7MsnbhZ", "MvL2QQbjryY", "pZ7VasdvIQI", "emeQ7kjx8Ve", "ddefz0KIAtO"].includes(userAction.userRoleID)) {
+            if (["hXjy7MsnbhZ", "MvL2QQbjryY", "pZ7VasdvIQI", "emeQ7kjx8Ve", "ddefz0KIAtO"].indexOf(userAction.userRoleID) > -1) {
                 return {id: userAction.userRoleId};
             } else {
                 return {id: 'b2uHwX9YLhu'}; // Don't add the dummy roles; add Read Only instead

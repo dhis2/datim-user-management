@@ -167,6 +167,8 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
             inviteObject.userCredentials.userRoles.push({id: 'NsYYVxduOTM'});
         }
 
+        removeDummyRoles(inviteObject);
+
         organisationUnits = (Array.isArray(organisationUnits) && organisationUnits) || [];
 
         inviteObject.organisationUnits = (organisationUnits).map(function (orgUnit) {
@@ -456,6 +458,22 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
         return true;
     }
 
+    function removeDummyRoles(user) {
+        removeDummyRole(user, 'hXjy7MsnbhZ');
+        removeDummyRole(user, 'MvL2QQbjryY');
+        removeDummyRole(user, 'pZ7VasdvIQI');
+        removeDummyRole(user, 'emeQ7kjx8Ve');
+        removeDummyRole(user, 'ddefz0KIAtO');
+    }
+
+    function removeDummyRole(user, roleuid) {
+        var x = findItem('', roleuid, user.userCredentials.userRoles);
+        while (x >= 0) {
+            user.userCredentials.userRoles.splice(x, 1);
+            x = findItem('', roleuid, user.userCredentials.userRoles);
+        }
+    }
+
     function findItem(itemName, itemUid, items) {
         if (Array.isArray(items)) {
             for (var i = 0, len = items.length; i < len; i++) {
@@ -500,6 +518,7 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
 
             unmungeMore('SaS', 'AZU9Haopetn', 'emeQ7kjx8Ve', userToUpdate);
             unmungeMore('ER', 'XgctRYBpSiR', 'ddefz0KIAtO', userToUpdate);
+            removeDummyRoles(userToUpdate);
 
             return userToUpdate.save();
         });
