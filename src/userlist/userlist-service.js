@@ -120,7 +120,7 @@ function userListService($q, Restangular, schemaService, paginationService, user
             ((user || {}).userGroups || []).forEach(function (userGroup) {
                 var cachedUserGroupAccess = userGroupAccessCache[userGroup.id];
                 if (cachedUserGroupAccess) {
-                    jQuery.extend(true, userGroup, userGroupAccess);
+                    jQuery.extend(true, userGroup, cachedUserGroupAccess);
                 }
                 else {
                     userGroups[userGroup.id] = userGroups[userGroup.id] || [];

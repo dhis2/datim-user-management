@@ -141,7 +141,10 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
         addUserManagerUserRoles();
         addAllAvailableDataStreams();
 
-        var showError = function () { notify.error('Unable to invite user manager'); }
+        var showError = function () {
+            notify.error('Unable to invite user manager');
+            vm.isProcessingAddUser = false;
+        }
 
         if (verifyUserInviteObject() && addUserGroupsForMechanismsAndUsers()) {
             addUserGroupForUserAdmin(function (success) {
@@ -165,6 +168,7 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
         addDimensionConstraintForType();
 
         if (!verifyUserInviteObject() || !addUserGroupsForMechanismsAndUsers()) {
+            vm.isProcessingAddUser = false;
             return;
         }
 
