@@ -134,7 +134,6 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
 
         toggleMohUserAdminGroup(function () {
             fixUserManagementRole();
-            addExtraUserManagementRoles();
 
             setProcessingTo(true);
 

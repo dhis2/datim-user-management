@@ -348,23 +348,28 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
                 ].join(',')
             })
             .then(function(user) {
-                var munging = findItem('Data PRIME access', 'c6hGi8GEZot', user.userGroups);
-                if (munging >= 0) {
-                    if (munge(user, munging, 'Data PRIME Country Team entry', 'Data Entry PRIME Country Team', 'pZ7VasdvIQI')) {
-                        console.log('Converted Data PRIME Country Team entry user');
-                    } else if (munge(user, munging, 'Data PRIME DoD entry', 'Data Entry PRIME DOD', 'MvL2QQbjryY')) {
-                        console.log('Converted Data PRIME DoD entry user');
-                    } else if (munge(user, munging, 'Data PRIME entry', 'Data Entry PRIME', 'hXjy7MsnbhZ')) {
-                        console.log('Converted Data PRIME entry user');
-                    } else {
-                        console.log('Data PRIME access user—nothing to do');
-                    }
-                }
-                mungeMore('SaS', 'AZU9Haopetn', 'emeQ7kjx8Ve', user);
-                mungeMore('ER', 'XgctRYBpSiR', 'ddefz0KIAtO', user);
-                mungeRemoveAggregate(user);
+                fullMunge(user);
                 return user;
             });
+    }
+
+    function fullMunge(user) {
+        var munging = findItem('Data PRIME access', 'c6hGi8GEZot', user.userGroups);
+        if (munging >= 0) {
+            if (munge(user, munging, 'Data PRIME Country Team entry', 'Data Entry PRIME Country Team', 'pZ7VasdvIQI')) {
+                console.log('Converted Data PRIME Country Team entry user');
+            } else if (munge(user, munging, 'Data PRIME DoD entry', 'Data Entry PRIME DOD', 'MvL2QQbjryY')) {
+                console.log('Converted Data PRIME DoD entry user');
+            } else if (munge(user, munging, 'Data PRIME entry', 'Data Entry PRIME', 'hXjy7MsnbhZ')) {
+                console.log('Converted Data PRIME entry user');
+            } else {
+                console.log('Data PRIME access user—nothing to do');
+            }
+        }
+        mungeMore('SaS', 'AZU9Haopetn', 'emeQ7kjx8Ve', user);
+        mungeMore('ER', 'XgctRYBpSiR', 'ddefz0KIAtO', user);
+        mungeRemoveAggregate(user);
+        removeHiddenGroups(user);
     }
 
     function munge(user, i, newname, oldname, olduid) {
@@ -411,6 +416,22 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
                 user.userCredentials.userRoles.splice(x, 1);
         }
     }
+
+    function removeHiddenGroups(user) {
+        removeAllFromCollection(user.userGroups, 'hCofOhr3q1Q');
+        removeAllFromCollection(user.userGroups, 'rP0VPKQcC8y');
+        removeAllFromCollection(user.userGroups, 'zY2t7de7Jzz');
+        removeAllFromCollection(user.userGroups, 'AZU9Haopetn');
+        removeAllFromCollection(user.userGroups, 'XgctRYBpSiR');
+    }
+
+    function removeAllFromCollection(collection, uid) {
+        var x = findItem('', uid, collection);
+        while (x >= 0) {
+            collection.splice(x, 1);
+            x = findItem('', uid, collection);
+        }
+    }
     
     function unmunge(user, i, oldname, olduid, newname, newuid) {
         var x = findItem(oldname, olduid, user.userCredentials.userRoles);
@@ -447,7 +468,6 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
                 'id': entryUid,
                 'displayName': 'Data ' + name + ' entry'
             });
-            // FIXME: This may need to be Tracker for SaS
             unmungeAddAggregate(user);
         } else {
             unmunging = findItem('Data ' + name + ' entry', entryUid, user.userGroups);
@@ -459,19 +479,11 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
     }
 
     function removeDummyRoles(user) {
-        removeDummyRole(user, 'hXjy7MsnbhZ');
-        removeDummyRole(user, 'MvL2QQbjryY');
-        removeDummyRole(user, 'pZ7VasdvIQI');
-        removeDummyRole(user, 'emeQ7kjx8Ve');
-        removeDummyRole(user, 'ddefz0KIAtO');
-    }
-
-    function removeDummyRole(user, roleuid) {
-        var x = findItem('', roleuid, user.userCredentials.userRoles);
-        while (x >= 0) {
-            user.userCredentials.userRoles.splice(x, 1);
-            x = findItem('', roleuid, user.userCredentials.userRoles);
-        }
+        removeAllFromCollection(user.userCredentials.userRoles, 'hXjy7MsnbhZ');
+        removeAllFromCollection(user.userCredentials.userRoles, 'MvL2QQbjryY');
+        removeAllFromCollection(user.userCredentials.userRoles, 'pZ7VasdvIQI');
+        removeAllFromCollection(user.userCredentials.userRoles, 'emeQ7kjx8Ve');
+        removeAllFromCollection(user.userCredentials.userRoles, 'ddefz0KIAtO');
     }
 
     function findItem(itemName, itemUid, items) {
@@ -520,7 +532,10 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
             unmungeMore('ER', 'XgctRYBpSiR', 'ddefz0KIAtO', userToUpdate);
             removeDummyRoles(userToUpdate);
 
-            return userToUpdate.save();
+            var value = userToUpdate.save().then(function() {
+                fullMunge(userToUpdate);
+            });
+            return value;
         });
     }
 
