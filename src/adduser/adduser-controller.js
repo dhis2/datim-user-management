@@ -274,7 +274,7 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
 
         var userType = getUserType();
 
-        if (userType == 'MOH') {
+        if (userType == 'MOH' || userType == 'Inter-Agency') {
             schemaService.store.get('MOH Groups', getCurrentOrgUnit()).then(function (mohUserGroups) {
                 var mohGroups = Object.keys(mohUserGroups).map(function (key) { return mohUserGroups[key]; });
                 mohGroups.forEach(function (mohGroup) {
@@ -284,7 +284,11 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
                         }).length > 0;
 
                         if (!hasGroup) {
-                            vm.userInviteObject.addEntityUserGroup(mohGroup);
+                            var userType = getUserType();
+                            
+                            if (userType == 'MOH' || mohGroup.name.indexOf(' MOH User administrators') > -1) {
+                                vm.userInviteObject.addEntityUserGroup(mohGroup);
+                            }
                         }
                     }
                 });

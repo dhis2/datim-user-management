@@ -155,12 +155,13 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
     function toggleMohUserAdminGroup(callback) {
         var userType = getUserType();
 
-        if (userType == 'MOH') {
+        if (userType == 'MOH' || userType == 'Inter-Agency') {
             var orgUnit = userToEdit.organisationUnits && userToEdit.organisationUnits[0];
 
             schemaService.store.get('MOH Groups', orgUnit).then(function (mohUserGroups) {
                 var mohAdminGroup = mohUserGroups.userAdminUserGroup;
                 var mohUserGroup = mohUserGroups.userUserGroup;
+                var userType = getUserType();
 
                 var groupIds, groupIndex;
 
@@ -176,7 +177,7 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
                     }
                 }
 
-                if (mohUserGroup && mohUserGroup.id) {
+                if (mohUserGroup && mohUserGroup.id && userType == 'MOH') {
                     groupIds = userToEdit.userGroups.map(function (g) { return g.id; });
                     groupIndex = groupIds.indexOf(mohUserGroup.id);
 
