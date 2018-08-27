@@ -154,48 +154,45 @@ function editUserController($scope, $state, currentUser, dataGroups, dataGroupsS
 
     function toggleMohUserAdminGroup(callback) {
         var userType = getUserType();
-        var orgUnit = userToEdit.organisationUnits && userToEdit.organisationUnits[0];
 
-        var applicableUserTypes = schemaService.store.get('Data Groups Definition', true)
-            .getUserTypes('MOH') || [];
-        var shouldToggle = applicableUserTypes.indexOf(userType) !== -1;
+        if (userType == 'MOH') {
+            var orgUnit = userToEdit.organisationUnits && userToEdit.organisationUnits[0];
 
-        if (!shouldToggle) {
-            return callback();
-        }
+            schemaService.store.get('MOH Groups', orgUnit).then(function (mohUserGroups) {
+                var mohAdminGroup = mohUserGroups.userAdminUserGroup;
+                var mohUserGroup = mohUserGroups.userUserGroup;
 
-        schemaService.store.get('MOH Groups', orgUnit).then(function (mohUserGroups) {
-            var mohAdminGroup = mohUserGroups.userAdminUserGroup;
-            var mohUserGroup = mohUserGroups.userUserGroup;
+                var groupIds, groupIndex;
 
-            var groupIds, groupIndex;
+                if (mohAdminGroup && mohAdminGroup.id) {
+                    groupIds = userToEdit.userGroups.map(function (g) { return g.id; });
+                    groupIndex = groupIds.indexOf(mohAdminGroup.id);
 
-            if (mohAdminGroup && mohAdminGroup.id) {
-                groupIds = userToEdit.userGroups.map(function (g) { return g.id; });
-                groupIndex = groupIds.indexOf(mohAdminGroup.id);
-
-                if (vm.isUserManager && groupIndex === -1) {
-                    userToEdit.userGroups.push(mohAdminGroup);
+                    if (vm.isUserManager && groupIndex === -1) {
+                        userToEdit.userGroups.push(mohAdminGroup);
+                    }
+                    else if (!vm.isUserManager && groupIndex > -1) {
+                        userToEdit.userGroups.splice(groupIndex, 1);
+                    }
                 }
-                else if (!vm.isUserManager && groupIndex > -1) {
-                    userToEdit.userGroups.splice(groupIndex, 1);
-                }
-            }
 
-            if (mohUserGroup && mohUserGroup.id) {
-                groupIds = userToEdit.userGroups.map(function (g) { return g.id; });
-                groupIndex = groupIds.indexOf(mohUserGroup.id);
+                if (mohUserGroup && mohUserGroup.id) {
+                    groupIds = userToEdit.userGroups.map(function (g) { return g.id; });
+                    groupIndex = groupIds.indexOf(mohUserGroup.id);
 
-                if (vm.isUserManager && groupIndex === -1) {
-                    userToEdit.userGroups.push(mohUserGroup);
+                    if (vm.isUserManager && groupIndex === -1) {
+                        userToEdit.userGroups.push(mohUserGroup);
+                    }
+                    else if (!vm.isUserManager && userType !== 'MOH') {
+                        userToEdit.userGroups.splice(groupIndex, 1);
+                    }
                 }
-                else if (!vm.isUserManager && userType !== 'MOH') {
-                    userToEdit.userGroups.splice(groupIndex, 1);
-                }
-            }
 
+                callback();
+            });
+        } else {
             callback();
-        });
+        }
     }
 
     function fixUserManagementRole() {

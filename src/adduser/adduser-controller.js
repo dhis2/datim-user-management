@@ -273,11 +273,8 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
         vm.userInviteObject.addEntityUserGroup($scope.user.userEntity.userAdminUserGroup);
 
         var userType = getUserType();
-        var applicableUserTypes = schemaService.store.get('Data Groups Definition', true)
-            .getUserTypes('MOH') || [];
-        var shouldToggle = applicableUserTypes.indexOf(userType) !== -1;
 
-        if (applicableUserTypes) {
+        if (userType == 'MOH') {
             schemaService.store.get('MOH Groups', getCurrentOrgUnit()).then(function (mohUserGroups) {
                 var mohGroups = Object.keys(mohUserGroups).map(function (key) { return mohUserGroups[key]; });
                 mohGroups.forEach(function (mohGroup) {
