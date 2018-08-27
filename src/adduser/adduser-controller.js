@@ -318,7 +318,7 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
 
     function addUserManagerUserRoles() {
         var adminActions = _.map(getUserManagerRoles(), function (userAction) {
-            if (["hXjy7MsnbhZ", "MvL2QQbjryY", "pZ7VasdvIQI", "emeQ7kjx8Ve", "ddefz0KIAtO"].indexOf(userAction.userRoleID) > -1) {
+            if (["hXjy7MsnbhZ", "MvL2QQbjryY", "pZ7VasdvIQI", "emeQ7kjx8Ve", "ddefz0KIAtO"].indexOf(userAction.userRoleId) == -1) {
                 return {id: userAction.userRoleId};
             } else {
                 return {id: 'b2uHwX9YLhu'}; // Don't add the dummy roles; add Read Only instead
@@ -333,15 +333,29 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
         vm.userInviteObject.userGroups = vm.userInviteObject.userGroups.concat(dataAccessGroups);
 
         var dataEntryRoles = _.map(getUserManagerDataEntryRoles(), function (userAction) {
-            if (!["hXjy7MsnbhZ", "MvL2QQbjryY", "pZ7VasdvIQI", "emeQ7kjx8Ve", "ddefz0KIAtO"].includes(userAction.userRoleId)) {
+            if (["hXjy7MsnbhZ", "MvL2QQbjryY", "pZ7VasdvIQI", "emeQ7kjx8Ve", "ddefz0KIAtO"].indexOf(userAction.userRoleId) == -1) {
                 return {id: userAction.userRoleId};
             } else {
                 return {id: 'b2uHwX9YLhu'}; // Don't add the dummy roles; add Read Only instead
             }
         });
 
+        if (findItem('Data SaS access', 'CwFniyubXbx', vm.userInviteObject.userGroups) >= 0) {
+            vm.userInviteObject.userCredentials.userRoles.push({id: 'NsYYVxduOTM'});
+        }
 
         vm.userInviteObject.userCredentials.userRoles = vm.userInviteObject.userCredentials.userRoles.concat(dataEntryRoles);
+    }
+
+    function findItem(itemName, itemUid, items) {
+        if (Array.isArray(items)) {
+            for (var i = 0, len = items.length; i < len; i++) {
+                if (items[i].name === itemName || items[i].id === itemUid) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 
     function renameProperty(from, to) {
