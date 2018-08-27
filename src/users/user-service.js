@@ -163,10 +163,6 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
             inviteObject.userCredentials.userRoles.push({id: 'k7BWFXkG6zt'});
         }
 
-        if (findItem('Data SaS access', 'CwFniyubXbx', inviteObject.userGroups) >= 0) {
-            inviteObject.userCredentials.userRoles.push({id: 'NsYYVxduOTM'});
-        }
-
         removeDummyRoles(inviteObject);
 
         organisationUnits = (Array.isArray(organisationUnits) && organisationUnits) || [];
