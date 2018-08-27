@@ -378,7 +378,7 @@ function userListController(userFilter, currentUser, schemaService, dataGroupsSe
             var currentUserRolesMap = _.indexBy(currentUserRoles, 'id');
 
             user.userCredentials.userRoles.forEach(function (userRole) {
-                if (["hXjy7MsnbhZ", "MvL2QQbjryY", "pZ7VasdvIQI", "emeQ7kjx8Ve", "ddefz0KIAtO"].indexOf(userRole.id) > -1 &&
+                if (["hXjy7MsnbhZ", "MvL2QQbjryY", "pZ7VasdvIQI", "emeQ7kjx8Ve", "ddefz0KIAtO"].indexOf(userRole.id) == -1 &&
                     !currentUserRolesMap[userRole.id]) {
                         errors.push('They have the role "' + userRole.name + '" which you do not');
                 }
