@@ -56,7 +56,7 @@ function globalUserEditController(notify, userGroups, userActions, userToEdit, u
                 vm.userToEdit.userGroups.push(userGroups.userAdminUserGroup);
             }
 
-            if (!userUtils.hasUserRole(vm.userToEdit, {name: 'User Administrator'})) {
+            if (!userUtils.hasUserRole(vm.userToEdit, {name: 'User Administrator', id: 'KagqnetfxMr'})) {
                 vm.userToEdit.userCredentials.userRoles.push({id: userManagementAction.userRoleId});
             }
         } else {
@@ -66,7 +66,7 @@ function globalUserEditController(notify, userGroups, userActions, userToEdit, u
                 });
             }
 
-            if (userUtils.hasUserRole(vm.userToEdit, {name: 'User Administrator'})) {
+            if (userUtils.hasUserRole(vm.userToEdit, {name: 'User Administrator', id: 'KagqnetfxMr'})) {
                 vm.userToEdit.userCredentials.userRoles = vm.userToEdit.userCredentials.userRoles.filter(function (userRole) {
                     return userManagementAction.userRoleId !== userRole.id;
                 });

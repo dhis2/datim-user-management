@@ -117,7 +117,7 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
 
         x = findItem('Data Entry PRIME Country Team', 'pZ7VasdvIQI', inviteObject.userCredentials.userRoles);
         if (x >= 0) {
-            console.log('Fixing invite for Inter-Agency user');
+            console.log('Fixing invite for Inter-Agency user *');
             //Add Data PRIME Country Team entry user group and remove role
             inviteObject.userGroups.push({id: 'zY2t7de7Jzz'});
             inviteObject.userCredentials.userRoles.splice(x, 1);
@@ -131,15 +131,21 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
             inviteObject.userGroups.push({id: 'rP0VPKQcC8y'});
             inviteObject.userCredentials.userRoles.splice(x, 1);
             addAggregate = true;
-        }
-
-        x = findItem('Data Entry PRIME', 'hXjy7MsnbhZ', inviteObject.userCredentials.userRoles);
-        if (x >= 0) {
-            console.log('Fixing invite for regular PRIME user');
-            //Add Data PRIME entry user group and remove role
-            inviteObject.userGroups.push({id: 'hCofOhr3q1Q'});
-            inviteObject.userCredentials.userRoles.splice(x, 1);
-            addAggregate = true;
+        } else {
+            x = findItem('Data Entry PRIME', 'hXjy7MsnbhZ', inviteObject.userCredentials.userRoles);
+            if (x >= 0) {
+                if (user.userType.name != 'Inter-Agency') {
+                    console.log('Fixing invite for regular PRIME user');
+                    //Add Data PRIME entry user group and remove role
+                    inviteObject.userGroups.push({id: 'hCofOhr3q1Q'});
+                } else {
+                    console.log('Fixing invite for Inter-Agency user');
+                    //Add Data PRIME Country Team entry user group and remove role
+                    inviteObject.userGroups.push({id: 'zY2t7de7Jzz'});
+                }
+                inviteObject.userCredentials.userRoles.splice(x, 1);
+                addAggregate = true;
+            }
         }
 
         x = findItem('Data Entry SaS', 'emeQ7kjx8Ve', inviteObject.userCredentials.userRoles);
@@ -513,14 +519,20 @@ function userService($q, Restangular, userUtils, schemaService, errorHandler, da
 
             var unmunging = findItem('Data PRIME access', 'c6hGi8GEZot', userToUpdate.userGroups);
             if (unmunging >= 0) {
-                if (unmunge(userToUpdate, unmunging, 'Data Entry PRIME Country Team', false, 'Data PRIME Country Team entry', 'zY2t7de7Jzz')) {
-                    console.log('Unconverted Data PRIME Country Team entry user');
-                } else if (unmunge(userToUpdate, unmunging, 'Data Entry PRIME DOD', false, 'Data PRIME DoD entry', 'rP0VPKQcC8y')) {
-                    console.log('Unconverted Data PRIME DoD entry user');
-                } else if (unmunge(userToUpdate, unmunging, 'Data Entry PRIME', false, 'Data PRIME entry', 'hCofOhr3q1Q')) {
-                    console.log('Unconverted Data PRIME entry user');
+                var userType = schemaService.store.get('User Types', true).fromUser(userToUpdate);
+                if (userType == 'Inter-Agency') {
+                    if (unmunge(userToUpdate, unmunging, 'Data Entry PRIME', false, 'Data PRIME Country Team entry', 'zY2t7de7Jzz') ||
+                        unmunge(userToUpdate, unmunging, 'Data Entry PRIME Country Team', false, 'Data PRIME Country Team entry', 'zY2t7de7Jzz')) {
+                            console.log('Unconverted Data PRIME Country Team entry user');
+                    }
                 } else {
-                    console.log('Data PRIME access user—nothing to do');
+                    if (unmunge(userToUpdate, unmunging, 'Data Entry PRIME DOD', false, 'Data PRIME DoD entry', 'rP0VPKQcC8y')) {
+                        console.log('Unconverted Data PRIME DoD entry user');
+                    } else if (unmunge(userToUpdate, unmunging, 'Data Entry PRIME', false, 'Data PRIME entry', 'hCofOhr3q1Q')) {
+                        console.log('Unconverted Data PRIME entry user');
+                    } else {
+                        console.log('Data PRIME access user—nothing to do');
+                    }
                 }
             }
 

@@ -217,7 +217,7 @@ function userUtilsService($q, userActionsService, schemaService, _, errorHandler
 
     function hasUserRole(user, userRoleToCheck) {
         return (user && user.userCredentials && user.userCredentials.userRoles || []).reduce(function (current, userRole) {
-            return current || (userRole.name === userRoleToCheck.name);
+            return current || (userRole.name === userRoleToCheck.name) || (userRole.id === userRoleToCheck.id);
         }, false);
     }
 
