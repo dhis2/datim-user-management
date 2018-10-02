@@ -139,6 +139,7 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
         vm.userInviteObject = getInviteObject([], []);
         addDimensionConstraintForType();
         addUserManagerUserRoles();
+        maybeAddTracker();
         addAllAvailableDataStreams();
 
         var showError = function () {
@@ -166,6 +167,7 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
 
         vm.userInviteObject = getInviteObject(vm.dataGroups, vm.actions);
         addDimensionConstraintForType();
+        maybeAddTracker();
 
         if (!verifyUserInviteObject() || !addUserGroupsForMechanismsAndUsers()) {
             vm.isProcessingAddUser = false;
@@ -341,11 +343,13 @@ function addUserController($scope, userTypes, dataGroups, currentUser, dimension
             }
         });
 
+        vm.userInviteObject.userCredentials.userRoles = vm.userInviteObject.userCredentials.userRoles.concat(dataEntryRoles);
+    }
+
+    function maybeAddTracker() {
         if (findItem('Data SaS access', 'CwFniyubXbx', vm.userInviteObject.userGroups) >= 0) {
             vm.userInviteObject.userCredentials.userRoles.push({id: 'NsYYVxduOTM'});
         }
-
-        vm.userInviteObject.userCredentials.userRoles = vm.userInviteObject.userCredentials.userRoles.concat(dataEntryRoles);
     }
 
     function findItem(itemName, itemUid, items) {

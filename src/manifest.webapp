@@ -1,5 +1,5 @@
 {
-    "version": "1.1.9",
+    "version": "1.2.0",
     "name": "User Administration",
     "description": "User administration app for PEPFAR DATIM",
     "icons": {
@@ -9,7 +9,7 @@
         "url": "",
         "name": "Mark Polak, Mike Possumato, Greg Wilson, Jen Arnesen and Ben Guaraldi"
     },
-    "launch_path": "index.html?v=1.1.9",
+    "launch_path": "index.html?v=1.2.0",
     "default_locale": "en",
     "activities": {
         "dhis": {
