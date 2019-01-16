@@ -20,10 +20,15 @@ function userStatusService(Restangular, $q) {
         if (!angular.isString(userId)) {
             return $q.reject('User id is not a string');
         }
-
         return getUser(userId)
             .then(setUserEnabled)
-            .then(saveUser);
+            .then(saveUser)
+            .then(function(response) {
+                var updatedSuccesfully=false; //TOMZ 2019-01-15 #22 (Global #4457)
+                if(response.stats.updated>0){updatedSuccesfully=true} //TOMZ 2019-01-15 #22 (Global #4457)
+                return updatedSuccesfully; //TOMZ 2019-01-15 #22 (Global #4457)
+            })
+            ;
     }
 
     function setUserDisabled(user) {
