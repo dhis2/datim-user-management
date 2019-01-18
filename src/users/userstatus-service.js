@@ -24,9 +24,7 @@ function userStatusService(Restangular, $q) {
             .then(setUserEnabled)
             .then(saveUser)
             .then(function(response) {
-                var updatedSuccesfully=false; //TOMZ 2019-01-15 #22 (Global #4457)
-                if(response.stats.updated>0){updatedSuccesfully=true} //TOMZ 2019-01-15 #22 (Global #4457)
-                return updatedSuccesfully; //TOMZ 2019-01-15 #22 (Global #4457)
+                return (response.stats.updated > 0);
             })
             ;
     }

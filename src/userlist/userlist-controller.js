@@ -116,11 +116,9 @@ function userListController(userFilter, currentUser, schemaService, dataGroupsSe
     function activateUser(user) {
         vm.processing[user.id] = true;
         userStatusService.enable(user.id)
-            .then(function(updatedSuccesfully) {
-                
-                console.log('Did user activate succesfully:'+ updatedSuccesfully) //TOMZ 2019-01-15 #22 (Global #4457)
-                user.userCredentials.disabled = !updatedSuccesfully; //TOMZ 2019-01-15 #22 (Global #4457)
-                if(!updatedSuccesfully){errorHandler.error('Unable to enable the user')} //TOMZ 2019-01-15 #22 (Global #4457)
+            .then(function(updatedSuccessfully) {
+                user.userCredentials.disabled = !updatedSuccessfully;
+                if (!updatedSuccesfully) { errorHandler.error('Unable to enable the user') }
                 vm.processing[user.id] = false;
             })
             .catch(function () {
