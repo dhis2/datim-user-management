@@ -13,7 +13,10 @@ function userStatusService(Restangular, $q) {
 
         return getUser(userId)
             .then(setUserDisabled)
-            .then(saveUser);
+            .then(saveUser)
+            .then(function(response) {
+                return (response.stats.updated > 0);
+            })
     }
 
     function enableUser(userId) {

@@ -131,8 +131,9 @@ function userListController(userFilter, currentUser, schemaService, dataGroupsSe
         vm.processing[user.id] = true;
 
         userStatusService.disable(user.id)
-            .then(function () {
-                user.userCredentials.disabled = true;
+            .then(function(updatedSuccessfully) {
+                user.userCredentials.disabled = updatedSuccessfully;
+                if (!updatedSuccesfully) { errorHandler.error('Unable to enable the user') }
                 vm.processing[user.id] = false;
             })
             .catch(function () {
