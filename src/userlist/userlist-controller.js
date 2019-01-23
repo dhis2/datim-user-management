@@ -118,7 +118,7 @@ function userListController(userFilter, currentUser, schemaService, dataGroupsSe
         userStatusService.enable(user.id)
             .then(function(updatedSuccessfully) {
                 user.userCredentials.disabled = !updatedSuccessfully;
-                if (!updatedSuccesfully) { errorHandler.error('Unable to enable the user') }
+                if (!updatedSuccessfully) { errorHandler.error('Unable to enable the user') }
                 vm.processing[user.id] = false;
             })
             .catch(function () {
@@ -133,7 +133,7 @@ function userListController(userFilter, currentUser, schemaService, dataGroupsSe
         userStatusService.disable(user.id)
             .then(function(updatedSuccessfully) {
                 user.userCredentials.disabled = updatedSuccessfully;
-                if (!updatedSuccesfully) { errorHandler.error('Unable to enable the user') }
+                if (!updatedSuccessfully) { errorHandler.error('Unable to enable the user') }
                 vm.processing[user.id] = false;
             })
             .catch(function () {
