@@ -234,13 +234,14 @@ window.getBootstrapper('PEPFAR.usermanagement', document)
         if (process.env.NODE_ENV !== 'production') {
             window.dhis2.settings.baseUrl = 'http://localhost:8080/dhis';
         } else {
-            window.dhis2.settings.baseUrl = injectables.webappManifest.activities.dhis.href.replace(window.location.origin, '').replace(/^\//, '');
+            //window.dhis2.settings.baseUrl = injectables.webappManifest.activities.dhis.href.replace(window.location.origin, '').replace(/^\//, '');
+            window.dhis2.settings.baseUrl='.';
         }
 
-        console.log(window.dhis2.settings.baseUrl);
+        console.log('baseUrl: '+window.dhis2.settings.baseUrl);
     })
-    .loadStylesheet('/dhis-web-commons/css/menu.css')
-    .loadScript('/dhis-web-commons/javascripts/dhis2/dhis2.translate.js')
-    .loadScript('/dhis-web-commons/javascripts/dhis2/dhis2.menu.js')
-    .loadModule('/dhis-web-commons/javascripts/dhis2/dhis2.menu.ui.js', 'd2HeaderBar')
+    .loadStylesheet('dhis-web-commons/css/menu.css')
+    .loadScript('dhis-web-commons/javascripts/dhis2/dhis2.translate.js')
+    .loadScript('dhis-web-commons/javascripts/dhis2/dhis2.menu.js')
+    .loadModule('dhis-web-commons/javascripts/dhis2/dhis2.menu.ui.js', 'd2HeaderBar')
     .bootstrap();
