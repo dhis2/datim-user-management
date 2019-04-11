@@ -246,7 +246,7 @@ function userListService($q, Restangular, schemaService, paginationService, user
                 }, 'N', 'Y'));
 
                 fields.push(getter(dataGroup.name + ' Data Entry', function (user) {
-                    return user.$dataGroups[dataGroup.name] && user.$dataGroups[dataGroup.name].entry;
+                    return user.$dataGroups[dataGroup.name] && user.$dataGroups[dataGroup.name].access;
                 }, 'N', 'Y'));
             });
 
